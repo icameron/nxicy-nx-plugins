@@ -1,0 +1,7 @@
+{
+  "name": "@nxicy/python-lambda",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "executors": "./executors.json",
+  "generators": "./generators.json"
+}

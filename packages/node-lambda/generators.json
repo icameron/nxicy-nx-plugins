@@ -1,0 +1,17 @@
+{
+  "generators": {
+    "function": {
+      "factory": "./src/generators/function/generator",
+      "schema": "./src/generators/function/schema.json",
+      "aliases": ["fn"],
+      "description": "Creates a Node lambda function."
+    },
+    "application": {
+      "factory": "./src/generators/application/generator",
+      "schema": "./src/generators/application/schema.json",
+      "aliases": ["app"],
+      "x-type": "application",
+      "description": "Creates a Node lambda application framework."
+    }
+  }
+}

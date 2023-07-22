@@ -1,0 +1,24 @@
+{
+  "generators": {
+    "application": {
+      "factory": "./src/generators/application/generator",
+      "schema": "./src/generators/application/schema.json",
+      "aliases": ["app"],
+      "x-type": "application",
+      "description": "Creates a Python lambda application framework."
+    },
+    "library": {
+      "factory": "./src/generators/lib/generator",
+      "schema": "./src/generators/lib/schema.json",
+      "aliases": ["lib"],
+      "x-type": "library",
+      "description": "Creates a Python package library."
+    },
+    "function": {
+      "factory": "./src/generators/function/generator",
+      "schema": "./src/generators/function/schema.json",
+      "aliases": ["fn"],
+      "description": "Creates Python lambda function."
+    }
+  }
+}

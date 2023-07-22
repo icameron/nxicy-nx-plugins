@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "title": "Package executor",
+  "description": "Packages the function files and package dependencies into a zip file",
+  "type": "object",
+  "properties": {
+    "buildTarget": {
+      "type": "string",
+      "description": "The target to run to build you the app."
+    },
+    "buildTargetOptions": {
+      "type": "object",
+      "description": "Additional options to pass into the build target.",
+      "default": {}
+    },
+    "waitUntilTargets": {
+      "type": "array",
+      "description": "The targets to run before starting the node app.",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },   
+    "runtimeArgs": {
+      "type": "array",
+      "description": "Extra args passed to the node process.",
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "x-priority": "important"
+    },
+    "args": {
+      "type": "array",
+      "description": "Extra args when starting the app.",
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "x-priority": "important"
+    },
+    "runBuildTargetDependencies": {
+      "type": "boolean",
+      "description": "Whether to run dependencies before running the build. Set this to true if the project does not build libraries from source (e.g. 'buildLibsFromSource: false').",
+      "default": false
+    }  ,
+    "zipFilePath": {
+      "type": "string",
+      "description": "The path of the zip file",
+      "x-completion-type": "directory",
+      "x-priority": "important"
+    },
+    "extractPath": {
+      "type": "string",
+      "description": "The path to extract the zip file",
+      "x-completion-type": "directory",
+      "x-priority": "important",
+      "default": ""
+    }
+  },
+  "required": ["buildTarget","zipFilePath"]
+}

@@ -1,0 +1,70 @@
+{
+  "name": "python-lambda",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/python-lambda/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/python-lambda",
+        "main": "packages/python-lambda/src/index.ts",
+        "tsConfig": "packages/python-lambda/tsconfig.lib.json",
+        "assets": [
+          "packages/python-lambda/*.md",
+          {
+            "input": "./packages/python-lambda/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/python-lambda/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/python-lambda",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/python-lambda",
+            "glob": "executors.json",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs python-lambda {args.ver} {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "packages/python-lambda/**/*.ts",
+          "packages/python-lambda/package.json",
+          "packages/python-lambda/executors.json"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/python-lambda/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

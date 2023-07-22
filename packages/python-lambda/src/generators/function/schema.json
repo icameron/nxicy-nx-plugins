@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "Function",
+  "title": "Python service function generator",
+  "description": "Generates a basic python function in the selected project and updates the project.json",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use?"
+    },
+    "project": {
+      "type": "string",
+      "description": "",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What project would you like to use?"
+    }
+  },
+  "required": ["name", "project"]
+}
