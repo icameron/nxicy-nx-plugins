@@ -14,11 +14,11 @@
       "x-type": "library",
       "description": "Creates a Python package library."
     },
-    "function": {
-      "factory": "./src/generators/function/generator",
-      "schema": "./src/generators/function/schema.json",
-      "aliases": ["fn"],
-      "description": "Creates Python lambda function."
+    "handler": {
+      "factory": "./src/generators/handler/generator",
+      "schema": "./src/generators/handler/schema.json",
+      "aliases": ["hdlr"],
+      "description": "Creates Python lambda handler."
     }
   }
 }

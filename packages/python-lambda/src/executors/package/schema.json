@@ -2,12 +2,12 @@
   "$schema": "http://json-schema.org/schema",
   "version": 2,
   "title": "Package executor",
-  "description": "Packages the function files and package dependencies into a zip file",
+  "description": "Packages the handler files and package dependencies into a zip file",
   "type": "object",
   "properties": {
-    "functionPath": {
+    "handlerPath": {
       "type": "string",
-      "description": "The path of the function files.",
+      "description": "The path of the handler files.",
       "x-completion-type": "directory",
       "x-priority": "important"
     },
@@ -35,5 +35,5 @@
       "default": ""
     }
   },
-  "required": ["functionPath", "zipFilePath"]
+  "required": ["handlerPath", "zipFilePath"]
 }

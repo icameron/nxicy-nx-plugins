@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/schema",
   "version": 2,
   "title": "Package executor",
-  "description": "Packages the function files and package dependencies into a zip file",
+  "description": "Packages the handler files and package dependencies into a zip file",
   "type": "object",
   "properties": {
     "buildTarget": {

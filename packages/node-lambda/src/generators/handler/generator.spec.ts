@@ -6,10 +6,10 @@ import {
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 
 // nx-ignore-next-line
-import { lambdaFunctionGenerator } from './generator';
+import { lambdaHandlerGenerator } from './generator';
 import applicationGenerator from '../application/generator';
 
-describe('lambdaFunctionGenerator', () => {
+describe('lambdaHandlerGenerator', () => {
   let appTree: Tree;
   beforeEach(() => {
     jest.clearAllMocks();
@@ -17,23 +17,23 @@ describe('lambdaFunctionGenerator', () => {
 
   it('should update project config', async () => {
     appTree = await createTestApp('my-project');
-    await lambdaFunctionGenerator(appTree, {
-      name: 'my-node-lambda-function',
+    await lambdaHandlerGenerator(appTree, {
+      name: 'my-node-lambda-handler',
       project: 'my-project',
     });
     const project = readProjectConfiguration(appTree, 'my-project');
     expect(project.root).toEqual('apps/my-project');
     expect(project.targets).toEqual(
       expect.objectContaining({
-        'build-my-node-lambda-function': {
+        'build-my-node-lambda-handler': {
           executor: '@nx/webpack:webpack',
           outputs: ['{options.outputPath}'],
           options: {
             target: 'node',
             compiler: 'tsc',
-            outputPath: `dist/apps/my-project/my-node-lambda-function/function`,
+            outputPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             outputFileName: 'index.js',
-            main: `apps/my-project/src/functions/my-node-lambda-function/index.ts`,
+            main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
             tsConfig: `apps/my-project/tsconfig.app.json`,
             assets: [],
             isolatedConfig: true,
@@ -48,16 +48,16 @@ describe('lambdaFunctionGenerator', () => {
           },
           outputs: ['{options.outputFile}'],
         },
-        'package-my-node-lambda-function': {
+        'package-my-node-lambda-handler': {
           executor: '@nxicy/node-lambda:package',
           defaultConfiguration: 'development',
           options: {
-            buildTarget: `my-project:build-my-node-lambda-function`,
-            zipFilePath: `dist/apps/my-project/my-node-lambda-function`,
+            buildTarget: `my-project:build-my-node-lambda-handler`,
+            zipFilePath: `dist/apps/my-project/my-node-lambda-handler`,
           },
           configurations: {
             development: {
-              extractPath: `dist/apps/my-project/my-node-lambda-function/function`,
+              extractPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             },
           },
         },
@@ -71,8 +71,8 @@ describe('lambdaFunctionGenerator', () => {
     delete tempProject.targets;
     updateProjectConfiguration(appTree, 'my-project', tempProject);
 
-    await lambdaFunctionGenerator(appTree, {
-      name: 'my-node-lambda-function',
+    await lambdaHandlerGenerator(appTree, {
+      name: 'my-node-lambda-handler',
       project: 'my-project',
     });
     const project = readProjectConfiguration(appTree, 'my-project');
@@ -80,15 +80,15 @@ describe('lambdaFunctionGenerator', () => {
     expect(project.root).toEqual('apps/my-project');
     expect(project.targets).toEqual(
       expect.objectContaining({
-        'build-my-node-lambda-function': {
+        'build-my-node-lambda-handler': {
           executor: '@nx/webpack:webpack',
           outputs: ['{options.outputPath}'],
           options: {
             target: 'node',
             compiler: 'tsc',
-            outputPath: `dist/apps/my-project/my-node-lambda-function/function`,
+            outputPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             outputFileName: 'index.js',
-            main: `apps/my-project/src/functions/my-node-lambda-function/index.ts`,
+            main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
             tsConfig: `apps/my-project/tsconfig.app.json`,
             assets: [],
             isolatedConfig: true,
@@ -96,16 +96,16 @@ describe('lambdaFunctionGenerator', () => {
             webpackConfig: `apps/my-project/webpack.config.js`,
           },
         },
-        'package-my-node-lambda-function': {
+        'package-my-node-lambda-handler': {
           executor: '@nxicy/node-lambda:package',
           defaultConfiguration: 'development',
           options: {
-            buildTarget: `my-project:build-my-node-lambda-function`,
-            zipFilePath: `dist/apps/my-project/my-node-lambda-function`,
+            buildTarget: `my-project:build-my-node-lambda-handler`,
+            zipFilePath: `dist/apps/my-project/my-node-lambda-handler`,
           },
           configurations: {
             development: {
-              extractPath: `dist/apps/my-project/my-node-lambda-function/function`,
+              extractPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             },
           },
         },
@@ -115,18 +115,18 @@ describe('lambdaFunctionGenerator', () => {
 
   it('should generate files', async () => {
     appTree = await createTestApp('my-project');
-    await lambdaFunctionGenerator(appTree, {
-      name: 'my-node-lambda-function',
+    await lambdaHandlerGenerator(appTree, {
+      name: 'my-node-lambda-handler',
       project: 'my-project',
     });
     expect(
       appTree.exists(
-        'apps/my-project/src/functions/my-node-lambda-function/index.spec.ts'
+        'apps/my-project/src/handlers/my-node-lambda-handler/index.spec.ts'
       )
     ).toBeTruthy();
     expect(
       appTree.exists(
-        'apps/my-project/src/functions/my-node-lambda-function/index.ts'
+        'apps/my-project/src/handlers/my-node-lambda-handler/index.ts'
       )
     ).toBeTruthy();
   });

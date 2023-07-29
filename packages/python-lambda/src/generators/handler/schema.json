@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/schema",
-  "$id": "Function",
-  "title": "Python service function generator",
-  "description": "Generates a basic python function in the selected project and updates the project.json",
+  "$id": "Python Handler",
+  "title": "Python handler generator",
+  "description": "Generates a basic python lambda handler in the selected project and updates the project.json",
   "type": "object",
   "properties": {
     "name": {

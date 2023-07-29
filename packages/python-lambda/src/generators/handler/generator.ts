@@ -9,11 +9,11 @@ import {
   readProjectConfiguration,
 } from '@nx/devkit';
 import * as path from 'path';
-import { FunctionGeneratorSchema, NormalizedSchema } from './schema';
+import { LambdaHandlerGeneratorSchema, NormalizedSchema } from './schema';
 
 function normalizeOptions(
   tree: Tree,
-  options: FunctionGeneratorSchema
+  options: LambdaHandlerGeneratorSchema
 ): NormalizedSchema {
   const projectDirectory = options.project;
   const projectName = projectDirectory.replace(new RegExp('/', 'g'), '-');
@@ -36,14 +36,14 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
   generateFiles(
     tree,
     path.join(__dirname, 'files'),
-    `${options.projectRoot}/src/functions/${options.name}`,
+    `${options.projectRoot}/src/handlers/${options.name}`,
     templateOptions
   );
 }
 
-export async function functionGenerator(
+export async function lambdaHandlerGenerator(
   tree: Tree,
-  options: FunctionGeneratorSchema
+  options: LambdaHandlerGeneratorSchema
 ) {
   const normalizedOptions = normalizeOptions(tree, options);
   const { projectRoot } = normalizedOptions;
@@ -56,13 +56,13 @@ export async function functionGenerator(
     executor: '@nxicy/python-lambda:package',
     defaultConfiguration: 'development',
     options: {      
-      functionPath: `${projectRoot}/src/functions/${options.name}/`,
+      handlerPath: `${projectRoot}/src/handlers/${options.name}/`,
       packages: [],
       zipFilePath: `dist/${projectRoot}/${options.name}`,
     },
     configurations: {
       development: {
-        extractPath: `dist/${projectRoot}/${options.name}/function`,
+        extractPath: `dist/${projectRoot}/${options.name}/handler`,
       },
     },
   };
@@ -72,4 +72,4 @@ export async function functionGenerator(
   await formatFiles(tree);
 }
 
-export default functionGenerator;
+export default lambdaHandlerGenerator;

@@ -59,8 +59,8 @@ describe('app', () => {
       // Make sure these exist
       [
         `my-node-lambda-application/jest.config.ts`,
-        `my-node-lambda-application/src/functions/get/index.ts`,
-        `my-node-lambda-application/src/functions/get/index.spec.ts`,
+        `my-node-lambda-application/src/handlers/get/index.ts`,
+        `my-node-lambda-application/src/handlers/get/index.spec.ts`,
       ].forEach((path) => {
         expect(tree.exists(path)).toBeTruthy();
       });
@@ -205,8 +205,8 @@ describe('app', () => {
       // Make sure these exist
       [
         `my-dir/my-node-lambda-application/jest.config.ts`,
-        `my-dir/my-node-lambda-application/src/functions/get/index.ts`,
-        `my-dir/my-node-lambda-application/src/functions/get/index.spec.ts`,
+        `my-dir/my-node-lambda-application/src/handlers/get/index.ts`,
+        `my-dir/my-node-lambda-application/src/handlers/get/index.spec.ts`,
       ].forEach((path) => {
         expect(tree.exists(path)).toBeTruthy();
       });
@@ -291,8 +291,8 @@ describe('app', () => {
       // Make sure these exist
       [
         `my-dir/my-node-lambda-application/jest.config.ts`,
-        `my-dir/my-node-lambda-application/src/functions/get/index.ts`,
-        `my-dir/my-node-lambda-application/src/functions/get/index.spec.ts`,
+        `my-dir/my-node-lambda-application/src/handlers/get/index.ts`,
+        `my-dir/my-node-lambda-application/src/handlers/get/index.spec.ts`,
       ].forEach((path) => {
         expect(tree.exists(path)).toBeTruthy();
       });

@@ -173,27 +173,27 @@ export async function* packageExecutor(
           // Before running the program, check if the task has been killed (by a new change during watch).
           if (task.killed) return;
 
-          // Zip the built function
+          // Zip the built handler
           task.promise = new Promise<void>(() => {         
             const { zipFilePath, extractPath } = options;
-            const functionPath = buildOptions.outputPath;
+            const handlerPath = buildOptions.outputPath;
 
-            const functionName=context.targetName.replace(/^package-/, '');
+            const handlerName=context.targetName.replace(/^package-/, '');
             const zip = new AdmZip();
 
             const systemRoot = context.root;
             process.chdir(systemRoot);
 
-            const relativePath = path.join(systemRoot, functionPath);
-            const zipFileOutputPath = path.join(systemRoot, zipFilePath) +'/function.zip';
+            const relativePath = path.join(systemRoot, handlerPath);
+            const zipFileOutputPath = path.join(systemRoot, zipFilePath) +'/handler.zip';
             
-            logger.log(`Packaging ${chalk.green(functionName)}`);
+            logger.log(`Packaging ${chalk.green(handlerName)}`);
             addFilesToZip(relativePath, zip);
             zip.writeZip(zipFileOutputPath);
             logger.log(`Zip file created: ${chalk.green(zipFileOutputPath)}`)
 
             if (extractPath !== '') {
-              logger.log(`Extracting ${chalk.green(functionName)} to ${chalk.yellow(extractPath)}`);
+              logger.log(`Extracting ${chalk.green(handlerName)} to ${chalk.yellow(extractPath)}`);
               zip.extractAllTo(extractPath, true);
             }
             next({ success: true, options: buildOptions });

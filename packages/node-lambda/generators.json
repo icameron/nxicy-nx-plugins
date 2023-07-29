@@ -1,10 +1,10 @@
 {
   "generators": {
-    "function": {
-      "factory": "./src/generators/function/generator",
-      "schema": "./src/generators/function/schema.json",
-      "aliases": ["fn"],
-      "description": "Creates a Node lambda function."
+    "handler": {
+      "factory": "./src/generators/handler/generator",
+      "schema": "./src/generators/handler/schema.json",
+      "aliases": ["hdlr"],
+      "description": "Creates a Node lambda handler."
     },
     "application": {
       "factory": "./src/generators/application/generator",

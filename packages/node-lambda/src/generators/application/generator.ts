@@ -43,9 +43,9 @@ function addProject(tree: Tree, options: NormalizedSchema) {
         options: {
           target: 'node',
           compiler: 'tsc',
-          outputPath: `dist/${options.appProjectRoot}/get/function`,
+          outputPath: `dist/${options.appProjectRoot}/get/handler`,
           outputFileName: 'index.js',
-          main: `${options.appProjectRoot}/src/functions/get/index.ts`,
+          main: `${options.appProjectRoot}/src/handlers/get/index.ts`,
           tsConfig: `${options.appProjectRoot}/tsconfig.app.json`,
           assets: [],
           isolatedConfig: true,
@@ -62,7 +62,7 @@ function addProject(tree: Tree, options: NormalizedSchema) {
         },
         configurations: {
           development: {
-            extractPath: `dist/${options.appProjectRoot}/get/function`,
+            extractPath: `dist/${options.appProjectRoot}/get/handler`,
           },
         },
       },

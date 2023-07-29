@@ -62,13 +62,13 @@ export async function applicationGenerator(
         executor: '@nxicy/python-lambda:package',
         defaultConfiguration: 'development',
         options: {
-          functionPath: `${projectRoot}/src/functions/get/`,
+          handlerPath: `${projectRoot}/src/handlers/get/`,
           packages: [],
           zipFilePath: `dist/${projectRoot}/get`,
         },
         configurations: {
           development: {
-            extractPath: `dist/${projectRoot}/get/function`,
+            extractPath: `dist/${projectRoot}/get/handler`,
           },
         },
       },

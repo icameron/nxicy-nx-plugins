@@ -29,7 +29,7 @@ export default async function runExecutor(
   options: PackageExecutorSchema,
   context: ExecutorContext
 ) {
-  const { packages, zipFilePath, extractPath, functionPath } = options;
+  const { packages, zipFilePath, extractPath, handlerPath } = options;
   const systemRoot = context.root;
 
   // We want these paths to always be resolved relative to the workspace
@@ -39,13 +39,13 @@ export default async function runExecutor(
   const zip = new AdmZip();
 
   const zipFileOutputPath =
-    path.join(systemRoot, zipFilePath) + '/function.zip';
+    path.join(systemRoot, zipFilePath) + '/handler.zip';
 
-  const relativePath = path.join(systemRoot, functionPath);
-  const functionName=context.targetName.replace(/^package-/, '');
+  const relativePath = path.join(systemRoot, handlerPath);
+  const handlerName=context.targetName.replace(/^package-/, '');
 
   logger.info(
-    `Packaging ${chalk.green(functionName)} to ${chalk.green(
+    `Packaging ${chalk.green(handlerName)} to ${chalk.green(
       zipFileOutputPath
     )}`
   );

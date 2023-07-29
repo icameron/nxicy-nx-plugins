@@ -9,11 +9,11 @@ import {
   readProjectConfiguration,
 } from '@nx/devkit';
 import * as path from 'path';
-import { LambdaFunctionGeneratorSchema, NormalizedSchema } from './schema';
+import { LambdaHandlerGeneratorSchema, NormalizedSchema } from './schema';
 
 export function normalizeOptions(
   tree: Tree,
-  options: LambdaFunctionGeneratorSchema
+  options: LambdaHandlerGeneratorSchema
 ): NormalizedSchema {
   const projectDirectory = options.project;
   const projectName = projectDirectory.replace(new RegExp('/', 'g'), '-');
@@ -37,14 +37,14 @@ export function addFiles(tree: Tree, options: NormalizedSchema) {
   generateFiles(
     tree,
     path.join(__dirname, 'files'),
-    `${options.projectRoot}/src/functions/${options.name}`,
+    `${options.projectRoot}/src/handlers/${options.name}`,
     templateOptions
   );
 }
 
-export async function lambdaFunctionGenerator(
+export async function lambdaHandlerGenerator(
   tree: Tree,
-  options: LambdaFunctionGeneratorSchema
+  options: LambdaHandlerGeneratorSchema
 ) {
   const normalizedOptions = normalizeOptions(tree, options);
   const { projectRoot, projectName } = normalizedOptions;
@@ -60,9 +60,9 @@ export async function lambdaFunctionGenerator(
     options: {
       target: 'node',
       compiler: 'tsc',
-      outputPath: `dist/${projectRoot}/${options.name}/function`,
+      outputPath: `dist/${projectRoot}/${options.name}/handler`,
       outputFileName: 'index.js',
-      main: `${projectRoot}/src/functions/${options.name}/index.ts`,
+      main: `${projectRoot}/src/handlers/${options.name}/index.ts`,
       tsConfig: `${projectRoot}/tsconfig.app.json`,
       assets: [],
       isolatedConfig: true,
@@ -79,7 +79,7 @@ export async function lambdaFunctionGenerator(
       },
       configurations: {
         development: {
-          extractPath: `dist/${projectRoot}/${options.name}/function`,
+          extractPath: `dist/${projectRoot}/${options.name}/handler`,
         },
       },
     });
@@ -89,4 +89,4 @@ export async function lambdaFunctionGenerator(
   await formatFiles(tree);
 }
 
-export default lambdaFunctionGenerator;
+export default lambdaHandlerGenerator;
