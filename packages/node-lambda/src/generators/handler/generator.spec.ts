@@ -26,19 +26,20 @@ describe('lambdaHandlerGenerator', () => {
     expect(project.targets).toEqual(
       expect.objectContaining({
         'build-my-node-lambda-handler': {
-          executor: '@nx/webpack:webpack',
+          executor: '@nx/esbuild:esbuild',
           outputs: ['{options.outputPath}'],
           options: {
-            target: 'node',
-            compiler: 'tsc',
+            bundle: true,
+            thirdParty: true,
             outputPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             outputFileName: 'index.js',
             main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
             tsConfig: `apps/my-project/tsconfig.app.json`,
-            assets: [],
-            isolatedConfig: true,
-            externalDependencies: 'none',
-            webpackConfig: `apps/my-project/webpack.config.js`,
+            esbuildOptions: {
+              sourcemap: true,
+              // Generate CJS files as .js so imports can be './foo' rather than './foo.cjs'.
+              outExtension: { '.js': '.js' },
+            },
           },
         },
         lint: {
@@ -81,19 +82,20 @@ describe('lambdaHandlerGenerator', () => {
     expect(project.targets).toEqual(
       expect.objectContaining({
         'build-my-node-lambda-handler': {
-          executor: '@nx/webpack:webpack',
+          executor: '@nx/esbuild:esbuild',
           outputs: ['{options.outputPath}'],
           options: {
-            target: 'node',
-            compiler: 'tsc',
+            bundle: true,
+            thirdParty: true,
             outputPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             outputFileName: 'index.js',
             main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
             tsConfig: `apps/my-project/tsconfig.app.json`,
-            assets: [],
-            isolatedConfig: true,
-            externalDependencies: 'none',
-            webpackConfig: `apps/my-project/webpack.config.js`,
+            esbuildOptions: {
+              sourcemap: true,
+              // Generate CJS files as .js so imports can be './foo' rather than './foo.cjs'.
+              outExtension: { '.js': '.js' },
+            },
           },
         },
         'package-my-node-lambda-handler': {

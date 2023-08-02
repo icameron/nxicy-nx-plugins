@@ -9,6 +9,7 @@ import {
 } from '@nx/devkit';
 import * as path from 'path';
 import { NormalizedSchema, ServiceGeneratorSchema } from './schema';
+import { generatePackageTarget } from '../../utils/generate-packate-target';
 
 function normalizeOptions(
   tree: Tree,
@@ -58,20 +59,7 @@ export async function applicationGenerator(
     projectType: 'application',
     sourceRoot: `${projectRoot}/src`,
     targets: {
-      'package-get': {
-        executor: '@nxicy/python-lambda:package',
-        defaultConfiguration: 'development',
-        options: {
-          handlerPath: `${projectRoot}/src/handlers/get/`,
-          packages: [],
-          zipFilePath: `dist/${projectRoot}/get`,
-        },
-        configurations: {
-          development: {
-            extractPath: `dist/${projectRoot}/get/handler`,
-          },
-        },
-      },
+      'package-get': generatePackageTarget(projectRoot, 'get'),
     },
   });
   addFiles(tree, normalizedOptions);

@@ -10,6 +10,8 @@ import {
 } from '@nx/devkit';
 import * as path from 'path';
 import { LambdaHandlerGeneratorSchema, NormalizedSchema } from './schema';
+import { generateBuildTargets } from '../../utils/generate-build-target';
+import { generatePackageTarget } from '../../utils/generate-package-target';
 
 export function normalizeOptions(
   tree: Tree,
@@ -54,35 +56,16 @@ export async function lambdaHandlerGenerator(
     projectConfig.targets = {};
   }
 
-  (projectConfig.targets[`build-${options.name}`] = {
-    executor: '@nx/webpack:webpack',
-    outputs: ['{options.outputPath}'],
-    options: {
-      target: 'node',
-      compiler: 'tsc',
-      outputPath: `dist/${projectRoot}/${options.name}/handler`,
-      outputFileName: 'index.js',
-      main: `${projectRoot}/src/handlers/${options.name}/index.ts`,
-      tsConfig: `${projectRoot}/tsconfig.app.json`,
-      assets: [],
-      isolatedConfig: true,
-      externalDependencies: 'none',
-      webpackConfig: `${projectRoot}/webpack.config.js`,
-    },
-  }),
-    (projectConfig.targets[`package-${options.name}`] = {
-      executor: '@nxicy/node-lambda:package',
-      defaultConfiguration: 'development',
-      options: {
-        buildTarget: `${projectName}:build-${options.name}`,
-        zipFilePath: `dist/${projectRoot}/${options.name}`,
-      },
-      configurations: {
-        development: {
-          extractPath: `dist/${projectRoot}/${options.name}/handler`,
-        },
-      },
-    });
+  projectConfig.targets[`build-${options.name}`] = generateBuildTargets(
+    projectRoot,
+    options.name
+  );
+
+  projectConfig.targets[`package-${options.name}`] = generatePackageTarget(
+    projectRoot,
+    projectName,
+    options.name
+  );
   updateProjectConfiguration(tree, options.project, projectConfig);
 
   addFiles(tree, normalizedOptions);
