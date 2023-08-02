@@ -10,6 +10,7 @@ import {
 } from '@nx/devkit';
 import * as path from 'path';
 import { LambdaHandlerGeneratorSchema, NormalizedSchema } from './schema';
+import { generatePackageTarget } from '../../utils/generate-packate-target';
 
 function normalizeOptions(
   tree: Tree,
@@ -52,20 +53,8 @@ export async function lambdaHandlerGenerator(
   if (!projectConfig.targets) {
     projectConfig.targets = {};
   }
-  projectConfig.targets[`package-${options.name}`] = {
-    executor: '@nxicy/python-lambda:package',
-    defaultConfiguration: 'development',
-    options: {      
-      handlerPath: `${projectRoot}/src/handlers/${options.name}/`,
-      packages: [],
-      zipFilePath: `dist/${projectRoot}/${options.name}`,
-    },
-    configurations: {
-      development: {
-        extractPath: `dist/${projectRoot}/${options.name}/handler`,
-      },
-    },
-  };
+  projectConfig.targets[`package-${options.name}`] = generatePackageTarget(projectRoot,options.name);
+    
   updateProjectConfiguration(tree, options.project, projectConfig);
 
   addFiles(tree, normalizedOptions);
