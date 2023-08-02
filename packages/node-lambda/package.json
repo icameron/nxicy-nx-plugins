@@ -1,14 +1,9 @@
 {
   "name": "@nxicy/node-lambda",
-  "version": "0.2.2",
+  "version": "0.3.2",
   "type": "commonjs",
   "generators": "./generators.json",
   "executors": "./executors.json",
-  "dependencies": {
-    "@nx/linter": "^16.5.2",
-    "@nx/webpack": "^16.5.2",
-    "@nx/jest": "^16.5.2", 
-    "aws-lambda": "^1.0.7"
-  }
+  "dependencies": {}
   
 }

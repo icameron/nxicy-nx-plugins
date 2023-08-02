@@ -2,6 +2,7 @@ import {
   addDependenciesToPackageJson,
   addProjectConfiguration,
   convertNxGenerator,
+  ensurePackage,
   extractLayoutDirectory,
   formatFiles,
   generateFiles,
@@ -16,15 +17,18 @@ import {
   updateJson,
 } from '@nx/devkit';
 import { Linter, lintProjectGenerator } from '@nx/linter';
-import { jestProjectGenerator } from '@nx/jest';
-
 import { getRelativePathToRootTsConfig, tsConfigBaseOptions } from '@nx/js';
 import { join } from 'path';
-
-import { webpackVersion } from '../../utils/versions';
+import {
+  esbuildVersion,
+  nxVersion,
+  typesAwsLambdaVersion,
+} from '../../utils/versions';
 
 import { Schema } from './schema';
 import { mapLintPattern } from '@nx/linter/src/generators/lint-project/lint-project';
+import { generateBuildTargets } from '../../utils/generate-build-target';
+import { generatePackageTarget } from '../../utils/generate-package-target';
 
 export interface NormalizedSchema extends Schema {
   appProjectRoot: string;
@@ -37,35 +41,12 @@ function addProject(tree: Tree, options: NormalizedSchema) {
     sourceRoot: joinPathFragments(options.appProjectRoot, 'src'),
     projectType: 'application',
     targets: {
-      'build-get': {
-        executor: '@nx/webpack:webpack',
-        outputs: ['{options.outputPath}'],        
-        options: {
-          target: 'node',
-          compiler: 'tsc',
-          outputPath: `dist/${options.appProjectRoot}/get/handler`,
-          outputFileName: 'index.js',
-          main: `${options.appProjectRoot}/src/handlers/get/index.ts`,
-          tsConfig: `${options.appProjectRoot}/tsconfig.app.json`,
-          assets: [],
-          isolatedConfig: true,
-          externalDependencies: 'none',
-          webpackConfig: `${options.appProjectRoot}/webpack.config.js`,
-        },
-      },
-      'package-get': {
-        executor: '@nxicy/node-lambda:package',
-        defaultConfiguration: 'development',
-        options: {
-          buildTarget: `${options.name}:build-get`,
-          zipFilePath: `dist/${options.appProjectRoot}/get`,
-        },
-        configurations: {
-          development: {
-            extractPath: `dist/${options.appProjectRoot}/get/handler`,
-          },
-        },
-      },
+      'build-get': generateBuildTargets(options.appProjectRoot, 'get'),
+      'package-get': generatePackageTarget(
+        options.appProjectRoot,
+        options.name,
+        'get'
+      ),
     },
     tags: options.parsedTags,
   };
@@ -115,16 +96,21 @@ function addProjectDependencies(
   options: NormalizedSchema
 ): GeneratorCallback {
   const bundlers = {
-    webpack: {
-      '@nx/webpack': webpackVersion,
+    esbuild: {
+      '@nx/esbuild': nxVersion,
+      esbuild: esbuildVersion,
     },
+  };
+  const devDependencies = {
+    '@types/aws-lambda': typesAwsLambdaVersion,
   };
 
   return addDependenciesToPackageJson(
     tree,
     {},
     {
-      ...bundlers['webpack'],
+      ...bundlers['esbuild'],
+      ...devDependencies,
     }
   );
 }
@@ -171,7 +157,8 @@ export async function applicationGenerator(tree: Tree, schema: Schema) {
   }
 
   if (options.unitTestRunner === 'jest') {
-    const jestTask = await jestProjectGenerator(tree, {
+    const { configurationGenerator } = ensurePackage('@nx/jest', nxVersion);
+    const jestTask = await configurationGenerator(tree, {
       ...options,
       project: options.name,
       setupFile: 'none',
