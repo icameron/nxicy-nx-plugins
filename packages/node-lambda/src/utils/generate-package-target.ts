@@ -4,14 +4,16 @@ export const generatePackageTarget = (
   name: string
 ) => ({
   executor: '@nxicy/node-lambda:package',
-  defaultConfiguration: 'development',
+  defaultConfiguration: 'production',
   options: {
     buildTarget: `${projectName}:build-${name}`,
-    zipFilePath: `dist/${projectRoot}/${name}`,
   },
   configurations: {
     development: {
-      extractPath: `dist/${projectRoot}/${name}/handler`,
+      buildTarget: `${projectName}:build-${name}:development`,
+    },
+    production: {
+      zipFileOutputPath: `dist/${projectRoot}/${name}`,
     },
   },
 });

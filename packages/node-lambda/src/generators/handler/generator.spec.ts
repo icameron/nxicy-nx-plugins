@@ -35,10 +35,15 @@ describe('lambdaHandlerGenerator', () => {
             outputFileName: 'index.js',
             main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
             tsConfig: `apps/my-project/tsconfig.app.json`,
+            external:[],
             esbuildOptions: {
-              sourcemap: true,
-              // Generate CJS files as .js so imports can be './foo' rather than './foo.cjs'.
+              sourcemap: false,
               outExtension: { '.js': '.js' },
+            },
+          },
+          configurations: {
+            development: {
+              sourcemap: true,
             },
           },
         },
@@ -51,15 +56,18 @@ describe('lambdaHandlerGenerator', () => {
         },
         'package-my-node-lambda-handler': {
           executor: '@nxicy/node-lambda:package',
-          defaultConfiguration: 'development',
+          defaultConfiguration: 'production',
           options: {
-            buildTarget: `my-project:build-my-node-lambda-handler`,
-            zipFilePath: `dist/apps/my-project/my-node-lambda-handler`,
+            buildTarget: `my-project:build-my-node-lambda-handler`,            
           },
           configurations: {
             development: {
-              extractPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
+              buildTarget: `my-project:build-my-node-lambda-handler:development`,
             },
+            production:{
+              zipFileOutputPath: `dist/apps/my-project/my-node-lambda-handler`,
+            }
+            
           },
         },
       })
@@ -91,24 +99,31 @@ describe('lambdaHandlerGenerator', () => {
             outputFileName: 'index.js',
             main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
             tsConfig: `apps/my-project/tsconfig.app.json`,
+            external:[],
             esbuildOptions: {
-              sourcemap: true,
-              // Generate CJS files as .js so imports can be './foo' rather than './foo.cjs'.
+              sourcemap: false,
               outExtension: { '.js': '.js' },
+            },
+          },
+          configurations: {
+            development: {
+              sourcemap: true,
             },
           },
         },
         'package-my-node-lambda-handler': {
           executor: '@nxicy/node-lambda:package',
-          defaultConfiguration: 'development',
+          defaultConfiguration: 'production',
           options: {
-            buildTarget: `my-project:build-my-node-lambda-handler`,
-            zipFilePath: `dist/apps/my-project/my-node-lambda-handler`,
+            buildTarget: `my-project:build-my-node-lambda-handler`,            
           },
           configurations: {
             development: {
-              extractPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
+              buildTarget: `my-project:build-my-node-lambda-handler:development`,             
             },
+            production:{
+              zipFileOutputPath: `dist/apps/my-project/my-node-lambda-handler`,
+            }
           },
         },
       })

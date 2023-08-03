@@ -6,7 +6,6 @@ export interface PackageExecutorOptions {
   buildTargetOptions: Record<string, any>;
   runBuildTargetDependencies?: boolean;
   handlerPath: string;
-  zipFilePath: string;
+  zipFileOutputPath: string | null;
   packages?: string[];
-  extractPath?: string;
 }

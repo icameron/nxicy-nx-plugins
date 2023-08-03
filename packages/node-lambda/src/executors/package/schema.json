@@ -21,7 +21,7 @@
       "items": {
         "type": "string"
       }
-    },   
+    },
     "runtimeArgs": {
       "type": "array",
       "description": "Extra args passed to the node process.",
@@ -44,20 +44,12 @@
       "type": "boolean",
       "description": "Whether to run dependencies before running the build. Set this to true if the project does not build libraries from source (e.g. 'buildLibsFromSource: false').",
       "default": false
-    }  ,
-    "zipFilePath": {
+    },
+    "zipFileOutputPath": {
       "type": "string",
       "description": "The path of the zip file",
-      "x-completion-type": "directory",
-      "x-priority": "important"
-    },
-    "extractPath": {
-      "type": "string",
-      "description": "The path to extract the zip file",
-      "x-completion-type": "directory",
-      "x-priority": "important",
-      "default": ""
+      "x-completion-type": "directory"
     }
   },
-  "required": ["buildTarget","zipFilePath"]
+  "required": ["buildTarget"]
 }
