@@ -15,7 +15,6 @@ import { createAsyncIterable } from '@nx/devkit/src/utils/async-iterable';
 import { PackageExecutorOptions } from './schema';
 import { killTree } from './lib/kill-tree';
 
-
 interface ActiveTask {
   id: string;
   killed: boolean;
@@ -173,32 +172,31 @@ export async function* packageExecutor(
           // Before running the program, check if the task has been killed (by a new change during watch).
           if (task.killed) return;
 
-          // Zip the built handler
-          task.promise = new Promise<void>(() => {         
-            const { zipFilePath, extractPath } = options;
-            const handlerPath = buildOptions.outputPath;
+          // Zip the build if required
+          const { zipFileOutputPath } = options;
+          if (zipFileOutputPath) {
+            task.promise = new Promise<void>((resolve) => {
+              const handlerPath = buildOptions.outputPath;
 
-            const handlerName=context.targetName.replace(/^package-/, '');
-            const zip = new AdmZip();
+              const handlerName = context.targetName.replace(/^package-/, '');
+              const zip = new AdmZip();
 
-            const systemRoot = context.root;
-            process.chdir(systemRoot);
+              const systemRoot = context.root;
+              process.chdir(systemRoot);
 
-            const relativePath = path.join(systemRoot, handlerPath);
-            const zipFileOutputPath = path.join(systemRoot, zipFilePath) +'/handler.zip';
-            
-            logger.log(`Packaging ${chalk.green(handlerName)}`);
-            addFilesToZip(relativePath, zip);
-            zip.writeZip(zipFileOutputPath);
-            logger.log(`Zip file created: ${chalk.green(zipFileOutputPath)}`)
+              const relativePath = path.join(systemRoot, handlerPath);
+              const outputPath =
+                path.join(systemRoot, zipFileOutputPath) + '/handler.zip';
 
-            if (extractPath !== '') {
-              logger.log(`Extracting ${chalk.green(handlerName)} to ${chalk.yellow(extractPath)}`);
-              zip.extractAllTo(extractPath, true);
-            }
-            next({ success: true, options: buildOptions });
-            done()
-          });
+              logger.log(`Packaging ${chalk.green(handlerName)}`);
+              addFilesToZip(relativePath, zip);
+              zip.writeZip(outputPath);
+              logger.log(`Zip file created: ${chalk.green(outputPath)}`);
+              resolve();
+            });
+          }
+          next({ success: true, options: buildOptions });
+          done();
         },
 
         stop: async (signal = 'SIGTERM') => {
@@ -225,8 +223,6 @@ export async function* packageExecutor(
   });
 }
 
-
-
 export function runWaitUntilTargets(
   options: PackageExecutorOptions,
   context: ExecutorContext
@@ -249,7 +245,5 @@ export function runWaitUntilTargets(
     })
   );
 }
-
-
 
 export default packageExecutor;
