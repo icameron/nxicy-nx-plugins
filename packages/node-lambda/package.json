@@ -1,9 +1,14 @@
 {
   "name": "@nxicy/node-lambda",
-  "version": "0.4.0",
+  "version": "0.4.6",
   "type": "commonjs",
   "generators": "./generators.json",
   "executors": "./executors.json",
-  "dependencies": {}
-  
+  "dependencies": {
+    "adm-zip": "^0.5.10",
+    "@nx/devkit": "16.6.0",
+    "@nx/esbuild": "^16.6.0",
+    "@nx/jest": "16.6.0",
+    "@nx/linter": "^16.6.0"    
+  }
 }
