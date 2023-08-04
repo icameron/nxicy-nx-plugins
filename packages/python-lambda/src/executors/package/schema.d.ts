@@ -1,6 +1,6 @@
 export interface PackageExecutorSchema {
   handlerPath: string;
-  zipFilePath: string;
+  zipFileOutputPath: string;
   packages?: string[];
-  extractPath?:string;
+  outputPath:string;
 }
