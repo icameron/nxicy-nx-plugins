@@ -53,14 +53,7 @@
       "type": "boolean",
       "description": "Whether or not to configure the ESLint `parserOptions.project` option. We do not do this by default for lint performance reasons.",
       "default": false
-    },
-    "rootProject": {
-      "description": "Create node application at the root of the workspace",
-      "type": "boolean",
-      "default": false,
-      "hidden": true,
-      "x-priority": "internal"
-    }    
+    }  
   },
   "required": ["name"]
 }

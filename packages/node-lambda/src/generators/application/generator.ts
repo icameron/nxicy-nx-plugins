@@ -19,12 +19,7 @@ import {
 import { Linter, lintProjectGenerator } from '@nx/linter';
 import { getRelativePathToRootTsConfig, tsConfigBaseOptions } from '@nx/js';
 import { join } from 'path';
-import {
-  esbuildVersion,
-  nxVersion,
-  typesAwsLambdaVersion,
-} from '../../utils/versions';
-
+import { nxVersion } from '../../utils/versions';
 import { Schema } from './schema';
 import { mapLintPattern } from '@nx/linter/src/generators/lint-project/lint-project';
 import { generateBuildTargets } from '../../utils/generate-build-target';
@@ -78,74 +73,29 @@ export async function addLintingToApplication(
     tsConfigPaths: [
       joinPathFragments(options.appProjectRoot, 'tsconfig.app.json'),
     ],
-    eslintFilePatterns: [
-      mapLintPattern(options.appProjectRoot, 'ts', options.rootProject),
-    ],
+    eslintFilePatterns: [mapLintPattern(options.appProjectRoot, 'ts')],
     unitTestRunner: options.unitTestRunner,
     skipFormat: true,
     setParserOptionsProject: options.setParserOptionsProject,
-    rootProject: options.rootProject,
   });
 
   return lintTask;
 }
 
-function addProjectDependencies(
-  tree: Tree,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  options: NormalizedSchema
-): GeneratorCallback {
-  const bundlers = {
-    esbuild: {
-      '@nx/esbuild': nxVersion,
-      esbuild: esbuildVersion,
-    },
-  };
-  const devDependencies = {
-    '@types/aws-lambda': typesAwsLambdaVersion,
-  };
-
-  return addDependenciesToPackageJson(
-    tree,
-    {},
-    {
-      ...bundlers['esbuild'],
-      ...devDependencies,
-    }
-  );
-}
-
 function updateTsConfigOptions(tree: Tree, options: NormalizedSchema) {
-  updateJson(tree, `${options.appProjectRoot}/tsconfig.json`, (json) => {
-    if (options.rootProject) {
-      return {
-        compilerOptions: {
-          ...tsConfigBaseOptions,
-          ...json.compilerOptions,
-          esModuleInterop: true,
-        },
-        ...json,
-        extends: undefined,
-        exclude: ['node_modules', 'tmp'],
-      };
-    } else {
-      return {
-        ...json,
-        compilerOptions: {
-          ...json.compilerOptions,
-          esModuleInterop: true,
-        },
-      };
-    }
-  });
+  updateJson(tree, `${options.appProjectRoot}/tsconfig.json`, (json) => ({
+    ...json,
+    compilerOptions: {
+      ...json.compilerOptions,
+      esModuleInterop: true,
+    },
+  }));
 }
 
 export async function applicationGenerator(tree: Tree, schema: Schema) {
   const options = normalizeOptions(tree, schema);
   const tasks: GeneratorCallback[] = [];
 
-  const installTask = addProjectDependencies(tree, options);
-  tasks.push(installTask);
   addAppFiles(tree, options);
   addProject(tree, options);
 
@@ -195,9 +145,7 @@ function normalizeOptions(host: Tree, options: Schema): NormalizedSchema {
 
   const appProjectName = appDirectory.replace(new RegExp('/', 'g'), '-');
 
-  const appProjectRoot = options.rootProject
-    ? '.'
-    : joinPathFragments(appsDir, appDirectory);
+  const appProjectRoot = joinPathFragments(appsDir, appDirectory);
 
   const parsedTags = options.tags
     ? options.tags.split(',').map((s) => s.trim())
@@ -210,7 +158,6 @@ function normalizeOptions(host: Tree, options: Schema): NormalizedSchema {
     parsedTags,
     linter: options.linter ?? Linter.EsLint,
     unitTestRunner: options.unitTestRunner ?? 'jest',
-    rootProject: options.rootProject ?? false,
   };
 }
 
