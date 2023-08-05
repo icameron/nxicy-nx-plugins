@@ -12,6 +12,9 @@
         "index": 0
       },
       "x-prompt": "What name would you like to use?"
+    },"tags": {
+      "type": "string",
+      "description": "Add tags to the application (used for linting)."
     }
   },
   "required": ["name"]

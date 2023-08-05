@@ -15,10 +15,7 @@ function normalizeOptions(
   tree: Tree,
   options: ServiceGeneratorSchema
 ): NormalizedSchema {
-  const name = names(options.name).fileName;
-  const projectDirectory = options.directory
-    ? `${names(options.directory).fileName}/${name}`
-    : name;
+  const projectDirectory = names(options.name).fileName;
   const projectName = projectDirectory.replace(new RegExp('/', 'g'), '-');
   const projectRoot = `${getWorkspaceLayout(tree).appsDir}/${projectDirectory}`;
   const parsedTags = options.tags
@@ -27,9 +24,9 @@ function normalizeOptions(
 
   return {
     ...options,
+    name: names(projectName).fileName,
     projectName,
     projectRoot,
-    projectDirectory,
     parsedTags,
   };
 }
@@ -54,13 +51,14 @@ export async function applicationGenerator(
   const normalizedOptions = normalizeOptions(tree, options);
   const { projectRoot } = normalizedOptions;
 
-  addProjectConfiguration(tree, options.name, {
+  addProjectConfiguration(tree, normalizedOptions.name, {
     root: projectRoot,
     projectType: 'application',
     sourceRoot: `${projectRoot}/src`,
     targets: {
       'package-get': generatePackageTarget(projectRoot, 'get'),
     },
+    tags: normalizedOptions.parsedTags,
   });
   addFiles(tree, normalizedOptions);
   await formatFiles(tree);

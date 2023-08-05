@@ -21,19 +21,17 @@
       },
       "default": []
     },
-    "zipFilePath": {
+    "zipFileOutputPath": {
       "type": "string",
       "description": "The path of the zip file",
-      "x-completion-type": "directory",
-      "x-priority": "important"
+      "x-completion-type": "directory"
     },
-    "extractPath": {
+    "outputPath": {
       "type": "string",
       "description": "The path to extract the zip file",
       "x-completion-type": "directory",
-      "x-priority": "important",
-      "default": ""
+      "x-priority": "important"
     }
   },
-  "required": ["handlerPath", "zipFilePath"]
+  "required": ["handlerPath","outputPath"]
 }
