@@ -64,7 +64,7 @@ export default async function runExecutor(
   logger.info(
     `Packaging ${chalk.green(handlerName)} to ${chalk.green(outputPath)}`
   );
-
+  addFolderToOutputPath(outputPath, relativePath);
   packages.forEach((folder) => {
     if (fs.existsSync(folder)) {
       logger.log(`+ ${chalk.green(folder)} `);
@@ -73,33 +73,22 @@ export default async function runExecutor(
       logger.error(`Folder '${folder}' does not exist.`);
     }
   });
-  addFolderToOutputPath(outputPath, relativePath);
+
 
   if (zipFileOutputPath) {
-    // const zip = new AdmZip();
+    const zip = new AdmZip();
 
-    // const zipFilePath =
-    //   path.join(systemRoot, zipFileOutputPath) + '/handler.zip';
+    const zipFilePath =
+      path.join(systemRoot, zipFileOutputPath) + '/handler.zip';
 
-    // logger.info(
-    //   `Packaging ${chalk.green(handlerName)} to ${chalk.green(zipFilePath)}`
-    // );
+    logger.info(
+      `Packaging ${chalk.green(handlerName)} to ${chalk.green(zipFilePath)}`
+    );
 
-    // addFolderToZip(zip, relativePath);
+    addFolderToZip(zip, outputPath);
 
-    // logger.log(`Adding Packages to zip file`);
-
-    // packages.forEach((folder) => {
-    //   if (fs.existsSync(folder)) {
-    //     logger.log(`+ ${chalk.green(folder)} `);
-    //     addFolderToZip(zip, folder);
-    //   } else {
-    //     logger.error(`Folder '${folder}' does not exist.`);
-    //   }
-    // });
-
-    // zip.writeZip(zipFileOutputPath);
-    // logger.log(`Zip file created: ${chalk.green(zipFilePath)}`);
+    zip.writeZip(zipFileOutputPath);
+    logger.log(`Zip file created: ${chalk.green(zipFilePath)}`);
   }
   return {
     success: true,
