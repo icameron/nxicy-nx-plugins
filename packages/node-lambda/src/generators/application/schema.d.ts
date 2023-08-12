@@ -9,7 +9,6 @@ export interface Schema {
   linter?: Linter;
   tags?: string;  
   setParserOptionsProject?: boolean;
-  rootProject?: boolean;
 
 }
 

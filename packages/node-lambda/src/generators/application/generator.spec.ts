@@ -9,40 +9,37 @@ import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 
 // nx-ignore-next-line
 import { applicationGenerator } from './generator';
+import { Linter } from '@nx/linter';
 
 describe('app', () => {
   let tree: Tree;
-
+  const name = 'myNodeLambdaApplication';
   beforeEach(() => {
-    tree = createTreeWithEmptyWorkspace();
+    tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
 
     jest.clearAllMocks();
   });
 
   describe('not nested', () => {
+    const schema = { name };
     it('should update project config', async () => {
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-      });
+      await applicationGenerator(tree, schema);
       const project = readProjectConfiguration(
         tree,
         'my-node-lambda-application'
       );
-      expect(project.root).toEqual('my-node-lambda-application');
+      expect(project.root).toEqual('apps/my-node-lambda-application');
       expect(project.targets.lint).toEqual({
         executor: '@nx/linter:eslint',
         outputs: ['{options.outputFile}'],
         options: {
-          lintFilePatterns: ['my-node-lambda-application/**/*.ts'],
+          lintFilePatterns: ['apps/my-node-lambda-application/**/*.ts'],
         },
       });
     });
 
     it('should update tags', async () => {
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-        tags: 'one,two',
-      });
+      await applicationGenerator(tree, { ...schema, tags: 'one,two' });
       const projects = Object.fromEntries(getProjects(tree));
       expect(projects).toMatchObject({
         'my-node-lambda-application': {
@@ -52,29 +49,27 @@ describe('app', () => {
     });
 
     it('should generate files', async () => {
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-      });
+      await applicationGenerator(tree, schema);
 
       // Make sure these exist
       [
-        `my-node-lambda-application/jest.config.ts`,
-        `my-node-lambda-application/src/handlers/get/index.ts`,
-        `my-node-lambda-application/src/handlers/get/index.spec.ts`,
+        `apps/my-node-lambda-application/jest.config.ts`,
+        `apps/my-node-lambda-application/src/handlers/get/index.ts`,
+        `apps/my-node-lambda-application/src/handlers/get/index.spec.ts`,
       ].forEach((path) => {
         expect(tree.exists(path)).toBeTruthy();
       });
 
       const tsconfig = readJson(
         tree,
-        'my-node-lambda-application/tsconfig.json'
+        'apps/my-node-lambda-application/tsconfig.json'
       );
       expect(tsconfig).toMatchInlineSnapshot(`
         {
           "compilerOptions": {
             "esModuleInterop": true,
           },
-          "extends": "../tsconfig.base.json",
+          "extends": "../../tsconfig.base.json",
           "files": [],
           "include": [],
           "references": [
@@ -90,9 +85,9 @@ describe('app', () => {
 
       const tsconfigApp = readJson(
         tree,
-        'my-node-lambda-application/tsconfig.app.json'
+        'apps/my-node-lambda-application/tsconfig.app.json'
       );
-      expect(tsconfigApp.compilerOptions.outDir).toEqual('../dist/out-tsc');
+      expect(tsconfigApp.compilerOptions.outDir).toEqual('../../dist/out-tsc');
       expect(tsconfigApp.extends).toEqual('./tsconfig.json');
       expect(tsconfigApp.exclude).toEqual([
         'jest.config.ts',
@@ -101,12 +96,12 @@ describe('app', () => {
       ]);
       const eslintrc = readJson(
         tree,
-        'my-node-lambda-application/.eslintrc.json'
+        'apps/my-node-lambda-application/.eslintrc.json'
       );
       expect(eslintrc).toMatchInlineSnapshot(`
         {
           "extends": [
-            "../.eslintrc.json",
+            "../../.eslintrc.json",
           ],
           "ignorePatterns": [
             "!**/*",
@@ -143,44 +138,39 @@ describe('app', () => {
     it('should extend from root tsconfig.json when no tsconfig.base.json', async () => {
       tree.rename('tsconfig.base.json', 'tsconfig.json');
 
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-      });
+      await applicationGenerator(tree, schema);
 
       const tsconfig = readJson(
         tree,
-        'my-node-lambda-application/tsconfig.json'
+        'apps/my-node-lambda-application/tsconfig.json'
       );
-      expect(tsconfig.extends).toBe('../tsconfig.json');
+      expect(tsconfig.extends).toBe('../../tsconfig.json');
     });
   });
 
   describe('nested', () => {
+    const schema = { name, directory: 'myDir' };
     it('should update project config', async () => {
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-        directory: 'myDir',
-      });
+      await applicationGenerator(tree, schema);
       const project = readProjectConfiguration(
         tree,
         'my-dir-my-node-lambda-application'
       );
 
-      expect(project.root).toEqual('my-dir/my-node-lambda-application');
+      expect(project.root).toEqual('apps/my-dir/my-node-lambda-application');
 
       expect(project.targets.lint).toEqual({
         executor: '@nx/linter:eslint',
         outputs: ['{options.outputFile}'],
         options: {
-          lintFilePatterns: ['my-dir/my-node-lambda-application/**/*.ts'],
+          lintFilePatterns: ['apps/my-dir/my-node-lambda-application/**/*.ts'],
         },
       });
     });
 
     it('should update tags', async () => {
       await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-        directory: 'myDir',
+        ...schema,
         tags: 'one,two',
       });
       const projects = Object.fromEntries(getProjects(tree));
@@ -197,16 +187,13 @@ describe('app', () => {
 
         expect(lookupFn(config)).toEqual(expectedValue);
       };
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-        directory: 'myDir',
-      });
+      await applicationGenerator(tree, schema);
 
       // Make sure these exist
       [
-        `my-dir/my-node-lambda-application/jest.config.ts`,
-        `my-dir/my-node-lambda-application/src/handlers/get/index.ts`,
-        `my-dir/my-node-lambda-application/src/handlers/get/index.spec.ts`,
+        `apps/my-dir/my-node-lambda-application/jest.config.ts`,
+        `apps/my-dir/my-node-lambda-application/src/handlers/get/index.ts`,
+        `apps/my-dir/my-node-lambda-application/src/handlers/get/index.spec.ts`,
       ].forEach((path) => {
         expect(tree.exists(path)).toBeTruthy();
       });
@@ -214,17 +201,17 @@ describe('app', () => {
       // Make sure these have properties
       [
         {
-          path: 'my-dir/my-node-lambda-application/tsconfig.app.json',
+          path: 'apps/my-dir/my-node-lambda-application/tsconfig.app.json',
           lookupFn: (json) => json.compilerOptions.outDir,
-          expectedValue: '../../dist/out-tsc',
+          expectedValue: '../../../dist/out-tsc',
         },
         {
-          path: 'my-dir/my-node-lambda-application/tsconfig.app.json',
+          path: 'apps/my-dir/my-node-lambda-application/tsconfig.app.json',
           lookupFn: (json) => json.compilerOptions.types,
           expectedValue: ['node'],
         },
         {
-          path: 'my-dir/my-node-lambda-application/tsconfig.app.json',
+          path: 'apps/my-dir/my-node-lambda-application/tsconfig.app.json',
           lookupFn: (json) => json.exclude,
           expectedValue: [
             'jest.config.ts',
@@ -233,116 +220,159 @@ describe('app', () => {
           ],
         },
         {
-          path: 'my-dir/my-node-lambda-application/.eslintrc.json',
+          path: 'apps/my-dir/my-node-lambda-application/.eslintrc.json',
           lookupFn: (json) => json.extends,
-          expectedValue: ['../../.eslintrc.json'],
+          expectedValue: ['../../../.eslintrc.json'],
         },
       ].forEach(hasJsonValue);
     });
   });
 
-  describe('root', () => {
+  describe('layout directory', () => {
+    const schema = {
+      name,
+      directory: 'apps/test-app',
+    };
     it('should update project config', async () => {
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-        rootProject: true,
-      });
+      await applicationGenerator(tree, schema);
       const project = readProjectConfiguration(
         tree,
-        'my-node-lambda-application'
+        'test-app-my-node-lambda-application'
       );
-
-      expect(project.root).toEqual('.');
-
+      expect(project.root).toEqual('apps/test-app/my-node-lambda-application');
       expect(project.targets.lint).toEqual({
         executor: '@nx/linter:eslint',
         outputs: ['{options.outputFile}'],
         options: {
-          lintFilePatterns: ['./src/**/*.ts'],
-        },
-      });
-    });
-
-    it('should update tags', async () => {
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-        directory: 'myDir',
-        tags: 'one,two',
-      });
-      const projects = Object.fromEntries(getProjects(tree));
-      expect(projects).toMatchObject({
-        'my-dir-my-node-lambda-application': {
-          tags: ['one', 'two'],
+          lintFilePatterns: ['apps/test-app/my-node-lambda-application/**/*.ts'],
         },
       });
     });
 
     it('should generate files', async () => {
-      const hasJsonValue = ({ path, expectedValue, lookupFn }) => {
-        const config = readJson(tree, path);
-
-        expect(lookupFn(config)).toEqual(expectedValue);
-      };
-      await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
-        directory: 'myDir',
-      });
+      await applicationGenerator(tree, schema);
 
       // Make sure these exist
       [
-        `my-dir/my-node-lambda-application/jest.config.ts`,
-        `my-dir/my-node-lambda-application/src/handlers/get/index.ts`,
-        `my-dir/my-node-lambda-application/src/handlers/get/index.spec.ts`,
+        `apps/test-app/my-node-lambda-application/jest.config.ts`,
+        `apps/test-app/my-node-lambda-application/src/handlers/get/index.ts`,
+        `apps/test-app/my-node-lambda-application/src/handlers/get/index.spec.ts`,
       ].forEach((path) => {
         expect(tree.exists(path)).toBeTruthy();
       });
 
-      // Make sure these have properties
-      [
-        {
-          path: 'my-dir/my-node-lambda-application/tsconfig.app.json',
-          lookupFn: (json) => json.compilerOptions.outDir,
-          expectedValue: '../../dist/out-tsc',
+      const tsconfig = readJson(
+        tree,
+        'apps/test-app/my-node-lambda-application/tsconfig.json'
+      );
+      expect(tsconfig).toMatchInlineSnapshot(`
+      {
+        "compilerOptions": {
+          "esModuleInterop": true,
         },
-        {
-          path: 'my-dir/my-node-lambda-application/tsconfig.app.json',
-          lookupFn: (json) => json.compilerOptions.types,
-          expectedValue: ['node'],
-        },
-        {
-          path: 'my-dir/my-node-lambda-application/tsconfig.app.json',
-          lookupFn: (json) => json.exclude,
-          expectedValue: [
-            'jest.config.ts',
-            'src/**/*.spec.ts',
-            'src/**/*.test.ts',
-          ],
-        },
-        {
-          path: 'my-dir/my-node-lambda-application/.eslintrc.json',
-          lookupFn: (json) => json.extends,
-          expectedValue: ['../../.eslintrc.json'],
-        },
-      ].forEach(hasJsonValue);
+        "extends": "../../../tsconfig.base.json",
+        "files": [],
+        "include": [],
+        "references": [
+          {
+            "path": "./tsconfig.app.json",
+          },
+          {
+            "path": "./tsconfig.spec.json",
+          },
+        ],
+      }
+    `);
+
+      const tsconfigApp = readJson(
+        tree,
+        'apps/test-app/my-node-lambda-application/tsconfig.app.json'
+      );
+      expect(tsconfigApp.compilerOptions.outDir).toEqual(
+        '../../../dist/out-tsc'
+      );
+      expect(tsconfigApp.extends).toEqual('./tsconfig.json');
+      expect(tsconfigApp.exclude).toEqual([
+        'jest.config.ts',
+        'src/**/*.spec.ts',
+        'src/**/*.test.ts',
+      ]);
+      const eslintrc = readJson(
+        tree,
+        'apps/test-app/my-node-lambda-application/.eslintrc.json'
+      );
+      expect(eslintrc).toMatchInlineSnapshot(`
+      {
+        "extends": [
+          "../../../.eslintrc.json",
+        ],
+        "ignorePatterns": [
+          "!**/*",
+        ],
+        "overrides": [
+          {
+            "files": [
+              "*.ts",
+              "*.tsx",
+              "*.js",
+              "*.jsx",
+            ],
+            "rules": {},
+          },
+          {
+            "files": [
+              "*.ts",
+              "*.tsx",
+            ],
+            "rules": {},
+          },
+          {
+            "files": [
+              "*.js",
+              "*.jsx",
+            ],
+            "rules": {},
+          },
+        ],
+      }
+    `);
+    });
+  });
+
+  describe('linter option Linter.None', () => {
+    const schema = {
+      name,
+      linter: Linter.None,
+    };
+
+    it('should allow none linter option', async () => {
+      await applicationGenerator(tree, schema);
+      const project = readProjectConfiguration(
+        tree,
+        'my-node-lambda-application'
+      );
+      expect(project.root).toEqual('apps/my-node-lambda-application');
     });
   });
 
   describe('--unit-test-runner none', () => {
     it('should not generate test configuration', async () => {
       await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
+        name,
         unitTestRunner: 'none',
       });
       expect(tree.exists('jest.config.ts')).toBeFalsy();
       expect(
-        tree.exists('my-node-lambda-application/src/test-setup.ts')
-      ).toBeFalsy();
-      expect(tree.exists('my-node-lambda-application/src/test.ts')).toBeFalsy();
-      expect(
-        tree.exists('my-node-lambda-application/tsconfig.spec.json')
+        tree.exists('apps/my-node-lambda-application/src/test-setup.ts')
       ).toBeFalsy();
       expect(
-        tree.exists('my-node-lambda-application/jest.config.ts')
+        tree.exists('apps/my-node-lambda-application/src/test.ts')
+      ).toBeFalsy();
+      expect(
+        tree.exists('apps/my-node-lambda-application/tsconfig.spec.json')
+      ).toBeFalsy();
+      expect(
+        tree.exists('apps/my-node-lambda-application/jest.config.ts')
       ).toBeFalsy();
       const project = readProjectConfiguration(
         tree,
@@ -354,7 +384,7 @@ describe('app', () => {
           "executor": "@nx/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "my-node-lambda-application/**/*.ts",
+              "apps/my-node-lambda-application/**/*.ts",
             ],
           },
           "outputs": [
@@ -366,21 +396,24 @@ describe('app', () => {
   });
 
   describe('--unit-test-runner none', () => {
+    const name = 'myNodeLambdaApplication';
     it('should not generate test configuration', async () => {
       await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
+        name,
         unitTestRunner: 'none',
       });
       expect(tree.exists('jest.config.ts')).toBeFalsy();
       expect(
-        tree.exists('my-node-lambda-application/src/test-setup.ts')
-      ).toBeFalsy();
-      expect(tree.exists('my-node-lambda-application/src/test.ts')).toBeFalsy();
-      expect(
-        tree.exists('my-node-lambda-application/tsconfig.spec.json')
+        tree.exists('apps/my-node-lambda-application/src/test-setup.ts')
       ).toBeFalsy();
       expect(
-        tree.exists('my-node-lambda-application/jest.config.ts')
+        tree.exists('apps/my-node-lambda-application/src/test.ts')
+      ).toBeFalsy();
+      expect(
+        tree.exists('apps/my-node-lambda-application/tsconfig.spec.json')
+      ).toBeFalsy();
+      expect(
+        tree.exists('apps/my-node-lambda-application/jest.config.ts')
       ).toBeFalsy();
       const project = readProjectConfiguration(
         tree,
@@ -392,7 +425,7 @@ describe('app', () => {
           "executor": "@nx/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "my-node-lambda-application/**/*.ts",
+              "apps/my-node-lambda-application/**/*.ts",
             ],
           },
           "outputs": [
@@ -407,7 +440,7 @@ describe('app', () => {
     it('should format files by default', async () => {
       jest.spyOn(devkit, 'formatFiles');
 
-      await applicationGenerator(tree, { name: 'myNodeLambdaApplication' });
+      await applicationGenerator(tree, { name });
 
       expect(devkit.formatFiles).toHaveBeenCalled();
     });
@@ -416,12 +449,11 @@ describe('app', () => {
       jest.spyOn(devkit, 'formatFiles');
 
       await applicationGenerator(tree, {
-        name: 'myNodeLambdaApplication',
+        name,
         skipFormat: true,
       });
 
       expect(devkit.formatFiles).not.toHaveBeenCalled();
     });
   });
-
 });

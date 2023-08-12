@@ -7,7 +7,7 @@
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "options": {
+      "options": {     
         "outputPath": "dist/packages/node-lambda",
         "main": "packages/node-lambda/src/index.ts",
         "tsConfig": "packages/node-lambda/tsconfig.lib.json",

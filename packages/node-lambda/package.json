@@ -9,6 +9,10 @@
     "@nx/devkit": "16.6.0",
     "@nx/esbuild": "^16.6.0",
     "@nx/jest": "16.6.0",
-    "@nx/linter": "^16.6.0"    
+    "@nx/linter": "^16.6.0",
+    "@nx/esbuid": "16.6.0",
+    "esbuild":"^0.17.19",
+    "@types/aws-lambda": "8.10.119"
+
   }
 }
