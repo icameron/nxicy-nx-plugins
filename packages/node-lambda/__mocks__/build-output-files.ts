@@ -40,7 +40,7 @@ const appsDirX = [
   },
 ];
 
-const buildFolderX = [
+const buildFolderError = [
   {
     name: 'dist',
     isFile: false,
@@ -97,5 +97,5 @@ const buildFolder = [
   },
 ];
 
-export const mockBuildOutput = buildFolder;
-export const mockBuildOutputX = buildFolderX;
+export const buildOutput = buildFolder;
+export const buildOutputError = buildFolderError;

@@ -65,6 +65,7 @@ export default async function runExecutor(
     `Packaging ${chalk.green(handlerName)} to ${chalk.green(outputPath)}`
   );
   addFolderToOutputPath(outputPath, relativePath);
+  // Note this root of the package and python files it's subfolder  
   packages.forEach((folder) => {
     if (fs.existsSync(folder)) {
       logger.log(`+ ${chalk.green(folder)} `);
@@ -73,7 +74,6 @@ export default async function runExecutor(
       logger.error(`Folder '${folder}' does not exist.`);
     }
   });
-
 
   if (zipFileOutputPath) {
     const zip = new AdmZip();
