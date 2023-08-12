@@ -50,7 +50,7 @@ function addProject(tree: Tree, options: NormalizedSchema) {
 }
 
 function addAppFiles(tree: Tree, options: NormalizedSchema) {
-  generateFiles(tree, join(__dirname, './files'), options.appProjectRoot, {
+  generateFiles(tree, join(__dirname, 'files'), options.appProjectRoot, {
     ...options,
     tmpl: '',
     name: options.name,
