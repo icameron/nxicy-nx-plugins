@@ -1,15 +1,12 @@
 import {
-  mockBuildOutput as mBO,
-  mockBuildOutputX as mBOX,
+  buildOutput,
+  buildOutputError,
 } from '../../../__mocks__/build-output-files';
 import {
-  mockStatSync,
-  mockReaddirSync,
-  mockReadFileSync,
-  FolderMap,
   createProjectGraphFromProjectConfiguration,
   getProjectConfigurations,
   createFolderMap,
+  mockFs,
 } from '@nxicy/testing';
 import * as chalk from 'chalk';
 import packageExecutor from './executor';
@@ -26,8 +23,8 @@ jest.mock('@nx/devkit', () => ({
 }));
 
 describe('packageExecutor', () => {
-  const mockBuildOutput = createFolderMap(mBO);
-  const mockBuildOutputX = createFolderMap(mBOX);
+  const mockBuildOutput = createFolderMap(buildOutput);
+  const mockBuildOutputError = createFolderMap(buildOutputError);
 
   let mockContext: devkit.ExecutorContext;
   const mockOptions = {
@@ -298,7 +295,7 @@ describe('packageExecutor', () => {
     // Mock the AdmZip constructor to return the admZipInstanceMock
     (AdmZip as jest.Mock).mockImplementation(() => admZipInstanceMock);
 
-    mockFs(mockBuildOutputX);
+    mockFs(mockBuildOutputError);
 
     const mockRunExecutor = jest
       .spyOn(devkit, 'runExecutor')
@@ -410,21 +407,3 @@ export async function createTestApp(libName: string): Promise<devkit.Tree> {
   return appTree;
 }
 
-const mockFs = (folderMap: FolderMap) => {
-  jest
-    .spyOn(fs, 'statSync')
-    .mockImplementation((filePath: fs.PathLike, options: any) =>
-      mockStatSync(folderMap, filePath, options)
-    );
-  jest
-    .spyOn(fs, 'readdirSync')
-    .mockImplementation((filePath: fs.PathLike, options: any) =>
-      mockReaddirSync(folderMap, filePath, options)
-    );
-
-  jest
-    .spyOn(fs, 'readFileSync')
-    .mockImplementation((filePath: fs.PathLike, options?: any) =>
-      mockReadFileSync(folderMap, filePath, options)
-    );
-};

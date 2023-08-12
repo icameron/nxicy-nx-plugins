@@ -9,14 +9,44 @@ export interface Files {
 export interface FolderMap {
   [key: string]: { [key: string]: Files };
 }
-// @ts-ignore 
+// @ts-ignore
 const actualReadFileSync = jest.requireActual('fs').readFileSync;
 // @ts-ignore
 const actualStatSync = jest.requireActual('fs').statSync;
 //@ts-ignore
 const actualReaddirSync = jest.requireActual('fs').readdirSync;
+//@ts-ignore
+const actualCopyFileSync = jest.requireActual('fs').copyFileSync;
 
-export const getFileOrFolderName = (filePath: fs.PathLike) => {
+export const mockFs = (folderMap: FolderMap) => {
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'statSync')
+    .mockImplementation((filePath: fs.PathLike, options: any) =>
+      mockStatSync(folderMap, filePath, options)
+    );
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'readdirSync')
+    .mockImplementation((filePath: fs.PathLike, options: any) =>
+      mockReaddirSync(folderMap, filePath, options)
+    );
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'readFileSync')
+    .mockImplementation((filePath: fs.PathLike, options?: any) =>
+      mockReadFileSync(folderMap, filePath, options)
+    );
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'copyFileSync')
+    .mockImplementation((filePath: fs.PathLike, options?: any) =>
+      mockCopyFileSync(folderMap, filePath, options)
+    );
+  //@ts-ignore
+};
+
+const getFileOrFolderName = (filePath: fs.PathLike) => {
   const parsedFilePath = path.normalize(filePath.toString());
   const lastSeparatorIndex = parsedFilePath.lastIndexOf(path.sep);
 
@@ -25,7 +55,31 @@ export const getFileOrFolderName = (filePath: fs.PathLike) => {
     : null;
 };
 
-export function mockStatSync(
+function mockCopyFileSync(
+  folderMap: FolderMap,
+  src: fs.PathLike,
+  dest: fs.PathLike,
+  mode?: any
+) {
+  const srcFile = getFileOrFolderName(src);
+  const srcFolderPath = path.dirname(path.normalize(src.toString()));
+  
+  if (mode) {
+    return actualCopyFileSync(src,dest,mode);
+  }
+
+  const srcData = srcFile
+    ? folderMap?.[srcFolderPath]?.[srcFile]
+    : folderMap?.[path.join(srcFolderPath, srcFile)];
+
+ 
+  if (!srcData) {
+    return actualCopyFileSync(src,dest,mode);
+  }
+  return true;
+}
+
+function mockStatSync(
   folderMap: FolderMap,
   filePath: fs.PathLike,
   options?: any
@@ -52,7 +106,7 @@ export function mockStatSync(
   };
 }
 
-export function mockReaddirSync(
+function mockReaddirSync(
   folderMap: FolderMap,
   filePath: fs.PathLike,
   options?: any
@@ -65,7 +119,7 @@ export function mockReaddirSync(
   return folderData ? Object.keys(folderData) : actualReaddirSync(filePath);
 }
 
-export function mockReadFileSync(
+function mockReadFileSync(
   folderMap: FolderMap,
   filePath: fs.PathLike,
   options?: any
