@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@nxicy/node-lambda": ["packages/node-lambda/src/index.ts"],
-      "@nxicy/py-service": ["packages/py-service/src/index.ts"]
+      "@nxicy/py-service": ["packages/py-service/src/index.ts"],
+      "@nxicy/testing": ["packages/testing/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
