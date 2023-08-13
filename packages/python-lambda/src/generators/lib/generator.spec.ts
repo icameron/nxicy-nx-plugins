@@ -1,8 +1,4 @@
-import {
-  readProjectConfiguration,
-  Tree,
-  updateProjectConfiguration,
-} from '@nx/devkit';
+import { Tree } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 
 // nx-ignore-next-line
@@ -30,11 +26,10 @@ describe('lambdaHandlerGenerator', () => {
     await libraryGenerator(tree, {
       name: '1',
     });
-    [
-      'libs/python/1/_1/__init__.py',
-      'libs/python/1/_1/module.py',
-    ].forEach((path) => {
-      expect(tree.exists(path)).toBeTruthy();
-    });
+    ['libs/python/1/_1/__init__.py', 'libs/python/1/_1/module.py'].forEach(
+      (path) => {
+        expect(tree.exists(path)).toBeTruthy();
+      }
+    );
   });
 });

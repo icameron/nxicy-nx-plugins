@@ -7,7 +7,7 @@ export interface Files {
   contents?: string;
 }
 export interface FolderMap {
-  [key: string]: { [key: string]: Files };
+  [key: string]: { [key: string]: Files } | object;
 }
 // @ts-ignore
 const actualReadFileSync = jest.requireActual('fs').readFileSync;
@@ -17,34 +17,8 @@ const actualStatSync = jest.requireActual('fs').statSync;
 const actualReaddirSync = jest.requireActual('fs').readdirSync;
 //@ts-ignore
 const actualCopyFileSync = jest.requireActual('fs').copyFileSync;
-
-export const mockFs = (folderMap: FolderMap) => {
-  //@ts-ignore
-  jest
-    .spyOn(fs, 'statSync')
-    .mockImplementation((filePath: fs.PathLike, options: any) =>
-      mockStatSync(folderMap, filePath, options)
-    );
-  //@ts-ignore
-  jest
-    .spyOn(fs, 'readdirSync')
-    .mockImplementation((filePath: fs.PathLike, options: any) =>
-      mockReaddirSync(folderMap, filePath, options)
-    );
-  //@ts-ignore
-  jest
-    .spyOn(fs, 'readFileSync')
-    .mockImplementation((filePath: fs.PathLike, options?: any) =>
-      mockReadFileSync(folderMap, filePath, options)
-    );
-  //@ts-ignore
-  jest
-    .spyOn(fs, 'copyFileSync')
-    .mockImplementation((filePath: fs.PathLike, options?: any) =>
-      mockCopyFileSync(folderMap, filePath, options)
-    );
-  //@ts-ignore
-};
+//@ts-ignore
+const actualExistsSync = jest.requireActual('fs').existsSync;
 
 const getFileOrFolderName = (filePath: fs.PathLike) => {
   const parsedFilePath = path.normalize(filePath.toString());
@@ -55,26 +29,80 @@ const getFileOrFolderName = (filePath: fs.PathLike) => {
     : null;
 };
 
+const checkFolderMap = (folderMap, pathName) => {
+  const srcFile = getFileOrFolderName(pathName);
+  const srcFolderPath = path.dirname(path.normalize(pathName.toString()));
+
+  return (
+    folderMap?.[srcFolderPath]?.[srcFile] ||
+    folderMap?.[path.join(srcFolderPath, srcFile)] ||
+    null
+  );
+};
+
+function mockExistsSync(folderMap: FolderMap, pathName: fs.PathLike) {
+  const srcData = checkFolderMap(folderMap, pathName);
+
+  if (!srcData) {
+    return actualExistsSync(pathName);
+  }
+  return true;
+}
+
+function mockMkdirSync(
+  folderMap: FolderMap,
+  pathName: fs.PathLike,
+  options?: any
+) {
+  const pathString = path.normalize(pathName.toString());
+  const dirData = folderMap?.[pathString];
+
+  if (!dirData) {
+    folderMap[pathString] = {};
+  }
+  let lastDirCreated = undefined;
+  if (options?.recursive) {
+    let dPath = path.dirname(pathString);
+    while (dPath !== path.sep && dPath !== ".") {
+      if (!folderMap[dPath]) {
+        folderMap[dPath] = {};
+      }
+      lastDirCreated = dPath;
+      dPath = path.dirname(dPath);
+    }
+  }
+  return lastDirCreated;
+}
+
 function mockCopyFileSync(
   folderMap: FolderMap,
   src: fs.PathLike,
   dest: fs.PathLike,
   mode?: any
 ) {
-  const srcFile = getFileOrFolderName(src);
-  const srcFolderPath = path.dirname(path.normalize(src.toString()));
-  
   if (mode) {
-    return actualCopyFileSync(src,dest,mode);
+    return actualCopyFileSync(src, dest, mode);
   }
+  const srcData = checkFolderMap(folderMap, src);
 
-  const srcData = srcFile
-    ? folderMap?.[srcFolderPath]?.[srcFile]
-    : folderMap?.[path.join(srcFolderPath, srcFile)];
-
- 
   if (!srcData) {
-    return actualCopyFileSync(src,dest,mode);
+    return actualCopyFileSync(src, dest, mode);
+  }
+  //Mutate the FolderMap
+
+  const dirFile = getFileOrFolderName(src);
+  const dirPath = path.dirname(path.normalize(dest.toString()));
+  folderMap[dirPath][dirFile] = srcData;
+  // add this as a subfolder to the part
+  const parentDir = path.dirname(dirPath);
+  const subfolderName = getFileOrFolderName(dirPath);
+  if (parentDir && subfolderName) {
+    if (!folderMap[parentDir]) {
+      folderMap[parentDir] = {};
+    }
+    folderMap[parentDir][subfolderName] = {
+      isFile: false,
+    };
   }
   return true;
 }
@@ -169,4 +197,43 @@ export const createFolderMap = (
 
   mapping[`${filePath ? filePath : path.sep}`] = folderData;
   return mapping;
+};
+
+export const mockFs = (folderMap: FolderMap) => {
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'statSync')
+    .mockImplementation((filePath: fs.PathLike, options: any) =>
+      mockStatSync(folderMap, filePath, options)
+    );
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'readdirSync')
+    .mockImplementation((filePath: fs.PathLike, options: any) =>
+      mockReaddirSync(folderMap, filePath, options)
+    );
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'readFileSync')
+    .mockImplementation((filePath: fs.PathLike, options?: any) =>
+      mockReadFileSync(folderMap, filePath, options)
+    );
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'copyFileSync')
+    .mockImplementation((filePath: fs.PathLike, options?: any) =>
+      mockCopyFileSync(folderMap, filePath, options)
+    );
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'existsSync')
+    .mockImplementation((filePath: fs.PathLike) =>
+      mockExistsSync(folderMap, filePath)
+    );
+  //@ts-ignore
+  jest
+    .spyOn(fs, 'mkdirSync')
+    .mockImplementation((filePath: fs.PathLike, options?: any) =>
+      mockMkdirSync(folderMap, filePath, options)
+    );
 };

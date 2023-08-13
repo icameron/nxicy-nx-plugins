@@ -10,7 +10,7 @@ import {
 } from '@nx/devkit';
 import * as path from 'path';
 import { LambdaHandlerGeneratorSchema, NormalizedSchema } from './schema';
-import { generatePackageTarget } from '../../utils/generate-packate-target';
+import { getPackageTarget } from '../../utils/package-target';
 
 function normalizeOptions(
   tree: Tree,
@@ -53,7 +53,7 @@ export async function lambdaHandlerGenerator(
   if (!projectConfig.targets) {
     projectConfig.targets = {};
   }
-  projectConfig.targets[`package-${options.name}`] = generatePackageTarget(projectRoot,options.name);
+  projectConfig.targets[`package-${options.name}`] = getPackageTarget(projectRoot,options.name);
     
   updateProjectConfiguration(tree, options.project, projectConfig);
 

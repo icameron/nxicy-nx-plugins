@@ -38,7 +38,12 @@ function addFolderToOutputPath(
 
     if (stat.isFile()) {
       const fileRelativePath = path.join(parentPath, file).replace(/\\/g, '/');
-      fs.copyFileSync(outputPath, fileRelativePath);
+      const destPath = path.join(outputPath, fileRelativePath);
+      const targetFolder = path.dirname(destPath);
+      if (!fs.existsSync(targetFolder)) {
+        fs.mkdirSync(targetFolder, { recursive: true });
+      }
+      fs.copyFileSync(filePath, destPath);
     } else if (stat.isDirectory()) {
       const subFolderPath = path.join(folderPath, file);
       const subFolderRelativePath = path.join(parentPath, file);
@@ -65,13 +70,14 @@ export default async function runExecutor(
     `Packaging ${chalk.green(handlerName)} to ${chalk.green(outputPath)}`
   );
   addFolderToOutputPath(outputPath, relativePath);
-  // Note this root of the package and python files it's subfolder  
+  // Note this root of the package and python files it's subfolder
   packages.forEach((folder) => {
-    if (fs.existsSync(folder)) {
-      logger.log(`+ ${chalk.green(folder)} `);
-      addFolderToOutputPath(outputPath, folder);
+    const relativeFolder = path.join(systemRoot, folder);
+    if (fs.existsSync(relativeFolder)) {
+      logger.log(`+ ${chalk.green(relativeFolder)} `);
+      addFolderToOutputPath(outputPath, relativeFolder);
     } else {
-      logger.error(`Folder '${folder}' does not exist.`);
+      logger.error(`Folder '${relativeFolder}' does not exist.`);
     }
   });
 
@@ -79,15 +85,19 @@ export default async function runExecutor(
     const zip = new AdmZip();
 
     const zipFilePath =
-      path.join(systemRoot, zipFileOutputPath) + '/handler.zip';
+      path.join(systemRoot, zipFileOutputPath) + path.sep + 'handler.zip';
 
     logger.info(
       `Packaging ${chalk.green(handlerName)} to ${chalk.green(zipFilePath)}`
     );
 
-    addFolderToZip(zip, outputPath);
-
-    zip.writeZip(zipFileOutputPath);
+    addFolderToZip(zip, outputPath);   
+     
+    const targetFolder = path.dirname(zipFilePath);
+    if (!fs.existsSync(targetFolder)) {
+      fs.mkdirSync(targetFolder, { recursive: true });
+    }
+    zip.writeZip(zipFilePath);
     logger.log(`Zip file created: ${chalk.green(zipFilePath)}`);
   }
   return {

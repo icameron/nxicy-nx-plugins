@@ -19,11 +19,14 @@ import {
 import { Linter, lintProjectGenerator } from '@nx/linter';
 import { getRelativePathToRootTsConfig, tsConfigBaseOptions } from '@nx/js';
 import { join } from 'path';
-import { nxVersion } from '../../utils/versions';
+import { esbuildVersion, nxVersion } from '../../utils/versions';
 import { Schema } from './schema';
 import { mapLintPattern } from '@nx/linter/src/generators/lint-project/lint-project';
-import { generateBuildTargets } from '../../utils/generate-build-target';
-import { generatePackageTarget } from '../../utils/generate-package-target';
+import { getPackageTarget } from '../../utils/package-target';
+import {
+  getEsBuildConfig,
+  getWebpackBuildConfig,
+} from '../../utils/build-targets';
 
 export interface NormalizedSchema extends Schema {
   appProjectRoot: string;
@@ -36,8 +39,11 @@ function addProject(tree: Tree, options: NormalizedSchema) {
     sourceRoot: joinPathFragments(options.appProjectRoot, 'src'),
     projectType: 'application',
     targets: {
-      'build-get': generateBuildTargets(options.appProjectRoot, 'get'),
-      'package-get': generatePackageTarget(
+      'build-get':
+        options.bundler === 'esbuild'
+          ? getEsBuildConfig(options.appProjectRoot, 'get')
+          : getWebpackBuildConfig(options.appProjectRoot, 'get'),
+      'package-get': getPackageTarget(
         options.appProjectRoot,
         options.name,
         'get'
@@ -50,6 +56,10 @@ function addProject(tree: Tree, options: NormalizedSchema) {
 }
 
 function addAppFiles(tree: Tree, options: NormalizedSchema) {
+  if (options.bundler !== 'webpack') {
+    tree.delete(joinPathFragments(options.appProjectRoot, 'webpack.config.js'));
+  }
+
   generateFiles(tree, join(__dirname, 'files'), options.appProjectRoot, {
     ...options,
     tmpl: '',
@@ -82,6 +92,28 @@ export async function addLintingToApplication(
   return lintTask;
 }
 
+function addProjectDependencies(
+  tree: Tree,
+  options: NormalizedSchema
+): GeneratorCallback {
+  const bundlers = {
+    webpack: {
+      '@nx/webpack': nxVersion,
+    },
+    esbuild: {
+      '@nx/esbuild': nxVersion,
+      esbuild: esbuildVersion,
+    },
+  };
+
+  return addDependenciesToPackageJson(
+    tree,
+    {},
+    {
+      ...bundlers[options.bundler],
+    }
+  );
+}
 function updateTsConfigOptions(tree: Tree, options: NormalizedSchema) {
   updateJson(tree, `${options.appProjectRoot}/tsconfig.json`, (json) => ({
     ...json,
@@ -95,6 +127,9 @@ function updateTsConfigOptions(tree: Tree, options: NormalizedSchema) {
 export async function applicationGenerator(tree: Tree, schema: Schema) {
   const options = normalizeOptions(tree, schema);
   const tasks: GeneratorCallback[] = [];
+
+  const installTask = addProjectDependencies(tree, options);
+  tasks.push(installTask);
 
   addAppFiles(tree, options);
   addProject(tree, options);
@@ -150,7 +185,7 @@ function normalizeOptions(host: Tree, options: Schema): NormalizedSchema {
   const parsedTags = options.tags
     ? options.tags.split(',').map((s) => s.trim())
     : [];
-
+  options.bundler = options.bundler ?? 'esbuild';
   return {
     ...options,
     name: names(appProjectName).fileName,

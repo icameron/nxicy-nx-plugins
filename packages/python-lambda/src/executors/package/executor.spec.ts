@@ -1,9 +1,5 @@
-import { package1, package2 } from '../../../__mocks__/package-files';
-import {
-  packagedOutputFiles,
-  packagedOutputFilesMissing,
-} from '../../../__mocks__/packaged-output-files';
-import { handlerFiles } from '../../../__mocks__/handler-files';
+import { libFilesMissing, libFiles } from '../../../__mocks__/package-files';
+import { appFiles } from '../../../__mocks__/handler-files';
 import runExecutor from './executor';
 import * as fs from 'fs';
 import * as AdmZip from 'adm-zip';
@@ -14,19 +10,16 @@ jest.mock('fs');
 jest.mock('adm-zip');
 
 describe('runExecutor', () => {
-  const mockPackage1 = createFolderMap(package1);
-  const mockPackage2 = createFolderMap(package2);
-  const mockPackageOutputFiles = createFolderMap(packagedOutputFiles);
-  const mockPackageOutputFilesMissing = createFolderMap(
-    packagedOutputFilesMissing
-  );
-  const mockHandlerFiles = createFolderMap(handlerFiles);
+  const mockLibs = createFolderMap(libFiles);
+  const mockLibsMissing = createFolderMap(libFilesMissing);
+  
+  const mockHandlerFiles = createFolderMap(appFiles);
 
   const mockOptions = {
-    packages: ['/package1', '/package2'],
-    zipFileOutputPath: '/output/path',
-    outputPath: '/output/path',
-    handlerPath: '/handler/path',
+    packages: ['libs/python/package1', 'libs/python/package2'],
+    zipFileOutputPath: 'dist/app/project/handler',
+    outputPath: 'dist/app/project',
+    handlerPath: 'apps/project/src/handler',
   };
 
   const mockContext = {
@@ -44,14 +37,9 @@ describe('runExecutor', () => {
     // Mock the logger.info and logger.log methods
     const loggerInfoMock = jest.spyOn(console, 'info').mockImplementation();
 
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.copyFileSync as jest.Mock).mockReturnValue(true);
-
     const mockFileSystem = {
       ...mockHandlerFiles,
-      ...mockPackageOutputFiles,
-      ...mockPackage1,
-      ...mockPackage2,
+      ...mockLibs,      
     };
     mockFs(mockFileSystem);
 
@@ -80,16 +68,9 @@ describe('runExecutor', () => {
     const loggerInfoMock = jest.spyOn(console, 'info').mockImplementation();
     const loggerLogError = jest.spyOn(console, 'error').mockImplementation();
 
-    (fs.existsSync as jest.Mock)
-      .mockReturnValueOnce(false)
-      .mockReturnValue(true);
-
-    (fs.copyFileSync as jest.Mock).mockReturnValue(true);
-
     const mockFileSystem = {
       ...mockHandlerFiles,
-      ...mockPackageOutputFilesMissing,
-      ...mockPackage2,
+      ...mockLibsMissing,
     };
     mockFs(mockFileSystem);
 
@@ -117,9 +98,6 @@ describe('runExecutor', () => {
   it('should handle no zipFileOutputPath', async () => {
     const loggerInfoMock = jest.spyOn(console, 'info').mockImplementation();
 
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.copyFileSync as jest.Mock).mockReturnValue(true);
-
     // Mock the AdmZip instance and its methods
     const admZipInstanceMock = {
       addFile: jest.fn(),
@@ -130,9 +108,7 @@ describe('runExecutor', () => {
 
     const mockFileSystem = {
       ...mockHandlerFiles,
-      ...mockPackageOutputFiles,
-      ...mockPackage1,
-      ...mockPackage2,
+      ...mockLibs
     };
     mockFs(mockFileSystem);
 
