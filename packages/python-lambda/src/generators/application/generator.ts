@@ -9,7 +9,7 @@ import {
 } from '@nx/devkit';
 import * as path from 'path';
 import { NormalizedSchema, ServiceGeneratorSchema } from './schema';
-import { generatePackageTarget } from '../../utils/generate-packate-target';
+import { getPackageTarget } from '../../utils/package-target';
 
 function normalizeOptions(
   tree: Tree,
@@ -56,7 +56,7 @@ export async function applicationGenerator(
     projectType: 'application',
     sourceRoot: `${projectRoot}/src`,
     targets: {
-      'package-get': generatePackageTarget(projectRoot, 'get'),
+      'package-get': getPackageTarget(projectRoot, 'get'),
     },
     tags: normalizedOptions.parsedTags,
   });

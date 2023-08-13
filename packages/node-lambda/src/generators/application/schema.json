@@ -53,7 +53,14 @@
       "type": "boolean",
       "description": "Whether or not to configure the ESLint `parserOptions.project` option. We do not do this by default for lint performance reasons.",
       "default": false
-    }  
+    },
+    "bundler": {
+      "description": "Bundler which is used to package the handler",
+      "type": "string",
+      "enum": ["esbuild", "webpack"],
+      "default": "esbuild",
+      "x-priority": "important"
+    }
   },
   "required": ["name"]
 }

@@ -68,12 +68,12 @@ export async function packageExecutor(
     context
   );
 
-  let buildSuccess=false;
+  let buildSuccess = false;
   for await (const result of runExecutorOutput) {
     if (!result.success) {
       throw new Error(`Build failed. See above for errors.`);
     }
-    buildSuccess=true
+    buildSuccess = true;
   }
 
   const { zipFileOutputPath } = options;
@@ -87,7 +87,9 @@ export async function packageExecutor(
 
     const relativePath = path.join(systemRoot, handlerPath);
     const outputPath =
-      path.join(systemRoot, options.zipFileOutputPath) + '/handler.zip';
+      path.join(systemRoot, options.zipFileOutputPath) +
+      path.sep +
+      'handler.zip';
     logger.log(`Packaging ${chalk.green(handlerName)}`);
     addFolderToZip(relativePath, zip);
     zip.writeZip(outputPath);

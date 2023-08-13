@@ -21,6 +21,13 @@
         "index": 0
       },
       "x-prompt": "What project would you like to use?"
+    },
+    "bundler": {
+      "description": "Bundler which is used to package the handler",
+      "type": "string",
+      "enum": ["esbuild", "webpack"],
+      "default": "esbuild",
+      "x-priority": "important"
     }
   },
   "required": ["name", "project"]

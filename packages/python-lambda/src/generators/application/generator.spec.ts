@@ -26,15 +26,15 @@ describe('app', () => {
       expect.objectContaining({
         'package-get': {
           executor: '@nxicy/python-lambda:package',
-          defaultConfiguration: 'development',
+          defaultConfiguration: 'production',
           options: {
-            handlerPath: `apps/my-python-lambda-application/src/handlers/get/`,
+            handlerPath: `apps/my-python-lambda-application/src/handlers/get`,
             packages: [],
-            zipFilePath: `dist/apps/my-python-lambda-application/get`,
+            outputPath: `dist/apps/my-python-lambda-application/get/handler`,
           },
           configurations: {
-            development: {
-              extractPath: `dist/apps/my-python-lambda-application/get/handler`,
+            production: {
+              zipFileOutputPath: `dist/apps/my-python-lambda-application/get/zip`,
             },
           },
         },

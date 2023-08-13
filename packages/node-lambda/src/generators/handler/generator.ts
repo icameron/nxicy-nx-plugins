@@ -7,11 +7,18 @@ import {
   Tree,
   updateProjectConfiguration,
   readProjectConfiguration,
+  addDependenciesToPackageJson,
+  GeneratorCallback,
+  runTasksInSerial,
 } from '@nx/devkit';
 import * as path from 'path';
 import { LambdaHandlerGeneratorSchema, NormalizedSchema } from './schema';
-import { generateBuildTargets } from '../../utils/generate-build-target';
-import { generatePackageTarget } from '../../utils/generate-package-target';
+import {
+  getEsBuildConfig,
+  getWebpackBuildConfig,
+} from '../../utils/build-targets';
+import { getPackageTarget } from '../../utils/package-target';
+import { esbuildVersion, nxVersion } from '../../utils/versions';
 
 export function normalizeOptions(
   tree: Tree,
@@ -20,13 +27,36 @@ export function normalizeOptions(
   const projectDirectory = options.project;
   const projectName = projectDirectory.replace(new RegExp('/', 'g'), '-');
   const projectRoot = `${getWorkspaceLayout(tree).appsDir}/${projectDirectory}`;
-
+  options.bundler = options.bundler ?? 'esbuild';
   return {
     ...options,
     projectName,
     projectRoot,
     projectDirectory,
   };
+}
+
+function addProjectDependencies(
+  tree: Tree,
+  options: NormalizedSchema
+): GeneratorCallback {
+  const bundlers = {
+    webpack: {
+      '@nx/webpack': nxVersion,
+    },
+    esbuild: {
+      '@nx/esbuild': nxVersion,
+      esbuild: esbuildVersion,
+    },
+  };
+
+  return addDependenciesToPackageJson(
+    tree,
+    {},
+    {
+      ...bundlers[options.bundler],
+    }
+  );
 }
 
 export function addFiles(tree: Tree, options: NormalizedSchema) {
@@ -36,9 +66,20 @@ export function addFiles(tree: Tree, options: NormalizedSchema) {
     offsetFromRoot: offsetFromRoot(options.projectRoot),
     template: '',
   };
+
+  //bundler config
+  if (options.bundler === 'webpack') {
+    generateFiles(
+      tree,
+      path.join(__dirname, 'files/webpack'),
+      `${options.projectRoot}`,
+      templateOptions
+    );
+  }
+  //handler
   generateFiles(
     tree,
-    path.join(__dirname, 'files'),
+    path.join(__dirname, 'files/handler'),
     `${options.projectRoot}/src/handlers/${options.name}`,
     templateOptions
   );
@@ -50,18 +91,24 @@ export async function lambdaHandlerGenerator(
 ) {
   const normalizedOptions = normalizeOptions(tree, options);
   const { projectRoot, projectName } = normalizedOptions;
+  const tasks: GeneratorCallback[] = [];
+
+  const installTask = addProjectDependencies(tree, normalizedOptions);
+  tasks.push(installTask);
+
+
   const projectConfig = readProjectConfiguration(tree, options.project);
 
   if (!projectConfig.targets) {
     projectConfig.targets = {};
   }
 
-  projectConfig.targets[`build-${options.name}`] = generateBuildTargets(
-    projectRoot,
-    options.name
-  );
+  projectConfig.targets[`build-${options.name}`] =
+    options.bundler === 'esbuild'
+      ? getEsBuildConfig(projectRoot, options.name)
+      : getWebpackBuildConfig(projectRoot, options.name);
 
-  projectConfig.targets[`package-${options.name}`] = generatePackageTarget(
+  projectConfig.targets[`package-${options.name}`] = getPackageTarget(
     projectRoot,
     projectName,
     options.name
@@ -70,6 +117,7 @@ export async function lambdaHandlerGenerator(
 
   addFiles(tree, normalizedOptions);
   await formatFiles(tree);
+  return runTasksInSerial(...tasks);
 }
 
 export default lambdaHandlerGenerator;

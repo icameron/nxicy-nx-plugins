@@ -1,4 +1,4 @@
-export const generatePackageTarget = (
+export const getPackageTarget = (
   projectRoot: string,
   projectName: string,
   name: string
@@ -13,7 +13,7 @@ export const generatePackageTarget = (
       buildTarget: `${projectName}:build-${name}:development`,
     },
     production: {
-      zipFileOutputPath: `dist/${projectRoot}/${name}`,
+      zipFileOutputPath: `dist/${projectRoot}/${name}/zip`,
     },
   },
 });

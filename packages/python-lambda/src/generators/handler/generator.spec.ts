@@ -27,15 +27,15 @@ describe('lambdaHandlerGenerator', () => {
       expect.objectContaining({
         'package-my-python-lambda-handler': {
           executor: '@nxicy/python-lambda:package',
-          defaultConfiguration: 'development',
+          defaultConfiguration: 'production',
           options: {
-            handlerPath: `apps/my-project/src/handlers/my-python-lambda-handler/`,
+            handlerPath: `apps/my-project/src/handlers/my-python-lambda-handler`,
             packages: [],
-            zipFilePath: `dist/apps/my-project/my-python-lambda-handler`,
+            outputPath: `dist/apps/my-project/my-python-lambda-handler/handler`,
           },
           configurations: {
-            development: {
-              extractPath: `dist/apps/my-project/my-python-lambda-handler/handler`,
+            production: {
+              zipFileOutputPath: `dist/apps/my-project/my-python-lambda-handler/zip`,
             },
           },
         },
@@ -60,15 +60,15 @@ describe('lambdaHandlerGenerator', () => {
       expect.objectContaining({
         'package-my-python-lambda-handler': {
           executor: '@nxicy/python-lambda:package',
-          defaultConfiguration: 'development',
+          defaultConfiguration: 'production',
           options: {
-            handlerPath: `apps/my-project/src/handlers/my-python-lambda-handler/`,
+            handlerPath: `apps/my-project/src/handlers/my-python-lambda-handler`,
             packages: [],
-            zipFilePath: `dist/apps/my-project/my-python-lambda-handler`,
+            outputPath: `dist/apps/my-project/my-python-lambda-handler/handler`,
           },
           configurations: {
-            development: {
-              extractPath: `dist/apps/my-project/my-python-lambda-handler/handler`,
+            production: {
+              zipFileOutputPath: `dist/apps/my-project/my-python-lambda-handler/zip`,
             },
           },
         },

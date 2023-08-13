@@ -1,13 +1,17 @@
-const pathDir = [{ name: 'main.py', isFile: true, contents: 'main py' }];
 
-const handlerDir = [
+
+
+const handlerDir = [{ name: 'main.py', isFile: true, contents: 'main py' }];
+const srcDir = [{ name: 'handler', isFile: false, contents: handlerDir }];
+const projectDir = [{ name: 'src', isFile: false, contents: srcDir }];
+const appsDir = [
   {
-    name: 'path',
+    name: 'project',
     isFile: false,
-    contents: pathDir,
+    contents: projectDir,
   },
 ];
 
-export const handlerFiles = [
-  { name: 'handler', isFile: false, contents: handlerDir },
+export const appFiles = [
+  { name: 'apps', isFile: false, contents: appsDir },
 ];
