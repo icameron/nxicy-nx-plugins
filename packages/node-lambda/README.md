@@ -56,7 +56,7 @@ Builds and packages a handler
 [**application**](#@nxicy/node-lambda:application)
 Create a node-lambda application
 
-[**handler**](@nxicy/node-lambda:handler)
+[**handler**](#@nxicy/node-lambda:handler)
 Create a node-lambda handler
 
 
@@ -65,7 +65,8 @@ Create a node-lambda handler
 Builds and packages a handler to be deployed to as an AWS lambda
 Options can be configured in `project.json` when defining the executor, or when invoking it. 
 
-## Options
+
+### Options
 
 **buildTarget** `required`
 <span style="color:green">string</span>
