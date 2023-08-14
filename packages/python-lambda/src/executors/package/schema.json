@@ -12,7 +12,7 @@
       "x-priority": "important"
     },
     "packages": {
-      "description": "Package folders to include in the zip.",
+      "description": "A list of package folders to include in the packaged handler.",
       "type": "array",
       "items": {
         "type": "string",
@@ -28,7 +28,7 @@
     },
     "outputPath": {
       "type": "string",
-      "description": "The path to extract the zip file",
+      "description": "The output path of the packaged handler.",
       "x-completion-type": "directory",
       "x-priority": "important"
     }
