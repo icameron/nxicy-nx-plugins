@@ -3,6 +3,7 @@ The Node-Lambda Plugin contains generators and executors to simplify the creatio
 
 [![npm version](https://badge.fury.io/js/@nxicy%2Fnode-lambda.svg)](https://badge.fury.io/js/@nxicy%2Fnode-lambda)
 
+test
 
 ## Overview 
 ### Setting up Node-Lambda
