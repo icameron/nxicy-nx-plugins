@@ -40,8 +40,8 @@
       "command": "node tools/scripts/publish.mjs node-lambda {args.ver} {args.tag}",
       "dependsOn": ["build"]
     },
-    "publish-cli": {
-      "command": "node tools/scripts/publish-cli.mjs node-lambda {args.tag}",
+    "publish-ci": {
+      "command": "node tools/scripts/publish-ci.mjs node-lambda {args.tag}",
       "dependsOn": ["build"]
     },
     "lint": {
