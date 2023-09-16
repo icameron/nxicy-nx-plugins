@@ -39,5 +39,4 @@ invariant(
 process.chdir(outputPath);
 
 // Execute "npm publish" to publish
-//execSync(`npm publish --access public --tag ${tag}`);
-console.log(`npm publish --access public --tag latest`)
+execSync(`npm publish --access public --tag latest`);
