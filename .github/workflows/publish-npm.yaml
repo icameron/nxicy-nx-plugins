@@ -20,14 +20,17 @@ jobs:
         with:
           node-version: 18
 
+      - run: git fetch origin master
+
       - name: Install dependencies
         run: npm ci
 
       - name: Run tests on affected packages
-        run: npx nx affected --base=remotes/origin/main --head=HEAD -t test --parallel=3 --configuration=ci
+        run: npx nx affected --base=$BEFORE_SHA -t test --parallel=3 --configuration=ci
         
       - name: Publish affected packages
-        run: npx nx affected --base=remotes/origin/main --head=HEAD -t publish-ci
+        run: npx nx affected --base=$BEFORE_SHA -t publish-ci
         
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+          BEFORE_SHA: ${{ github.event.before }}
