@@ -2,9 +2,9 @@ name: Publish Updated NPM Packages
 
 on:
   push:
-    branches: [action-test2]
+    branches: [main]
   pull_request:
-    branches: [action-test2]
+    branches: [main]
 
 jobs:
   publish:
@@ -25,11 +25,10 @@ jobs:
         run: npm ci
 
       - name: Run tests on affected packages
-        run: npx nx affected --base=$BEFORE_SHA -t test --parallel=3 --configuration=ci
+        run: npx nx affected  --base=origin/main -t test --parallel=3 --configuration=ci
         
       - name: Publish affected packages
-        run: npx nx affected --base=$BEFORE_SHA -t publish-ci
+        run: npx nx affected  --base=origin/main -t publish-ci
         
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-          BEFORE_SHA: ${{ github.event.before }}
