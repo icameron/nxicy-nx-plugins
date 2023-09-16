@@ -19,9 +19,8 @@ function invariant(condition, message) {
   }
 }
 
-// Executing publish script: node path/to/publish.mjs {name} --version {version} --tag {tag}
-// Default "tag" to "next" so we won't publish the "latest" tag by accident.
-const [, , name, version, tag = 'next'] = process.argv;
+// Executing publish script: node path/to/publish-ci.mjs {name} 
+const [, , name] = process.argv;
 
 const graph = readCachedProjectGraph();
 const project = graph.nodes[name];
@@ -41,4 +40,4 @@ process.chdir(outputPath);
 
 // Execute "npm publish" to publish
 //execSync(`npm publish --access public --tag ${tag}`);
-console.log(`npm publish --access public --tag ${tag}`)
+console.log(`npm publish --access public --tag latest`)
