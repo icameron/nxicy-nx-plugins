@@ -4,9 +4,12 @@ on:
   push:
     branches: 
       - main
+env: 
+  BEFORE_SHA: ${{github.event.before}}
 
 jobs:
   publish:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -27,8 +30,7 @@ jobs:
         run: npx nx affected --base=$BEFORE_SHA  -t test --parallel=3 --configuration=ci
         
       - name: Publish affected packages
-        run: npx nx affected --base=$BEFORE_SHA -t publish-ci
-        
+        run: npx nx affected --base=$BEFORE_SHA -t publish-ci        
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-          BEFORE_SHA: ${{github.event.before}}
+          
