@@ -1,5 +1,9 @@
 # @nxicy/node-lambda
 The Node-Lambda Plugin contains generators and executors to simplify the creation and management of applications and handlers specifically designed for AWS Lambda deployment.
+
+[![npm version](https://badge.fury.io/js/@nxicy%2Fnode-lambda.svg)](https://badge.fury.io/js/@nxicy%2Fnode-lambda)
+
+
 ## Overview 
 ### Setting up Node-Lambda
 To add the Node-Lambda plugin to an existing workspace, run the following:

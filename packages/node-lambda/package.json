@@ -3,7 +3,8 @@
   "version": "0.5.0",
   "type": "commonjs",
   "generators": "./generators.json",
-  "executors": "./executors.json",  
+  "executors": "./executors.json", 
+  "homepage": "https://github.com/icameron/nxicy-nx-plugins/tree/main/packages/node-lambda", 
   "repository": {
       "type": "git",
       "url": "https://github.com/icameron/nxicy-nx-plugins.git",

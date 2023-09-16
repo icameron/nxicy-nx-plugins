@@ -1,5 +1,7 @@
 # @nxicy/python-lambda
 The Python-Lambda Plugin contains generators and executors to simplify the creation and management of applications, handlers and libraries specifically designed for AWS Lambda deployment
+
+[![npm version](https://badge.fury.io/js/@nxicy%python-lambda.svg)](https://badge.fury.io/js/@nxicy%python-lambda)
 ## Overview 
 ### Setting up Python-Lambda
 To add the Python-Lambda plugin to an existing workspace, run the following:
