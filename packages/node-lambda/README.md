@@ -1,9 +1,9 @@
 # @nxicy/node-lambda
+
+[![npm](https://img.shields.io/npm/v/@nxicy%2Fnode-lambda.svg?style=flat)](hhttps://www.npmjs.com/package/@nxicy/node-lambda) [![nx support](https://img.shields.io/badge/NX->=16.6.0-143055?)](https://nx.dev)
+
 The Node-Lambda Plugin contains generators and executors to simplify the creation and management of applications and handlers specifically designed for AWS Lambda deployment.
 
-[![npm version](https://badge.fury.io/js/@nxicy%2Fnode-lambda.svg)](https://badge.fury.io/js/@nxicy%2Fnode-lambda)
-
-test
 
 ## Overview 
 ### Setting up Node-Lambda
