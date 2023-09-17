@@ -41,7 +41,7 @@
       "dependsOn": ["build"]
     },
     "publish-ci": {
-      "command": "node tools/scripts/publish-ci.mjs node-lambda {args.tag}",
+      "command": "node tools/scripts/publish-ci.mjs python-lambda {args.tag}",
       "dependsOn": ["build"]
     },
     "lint": {
