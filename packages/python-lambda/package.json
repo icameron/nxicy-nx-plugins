@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/icameron/nxicy-nx-plugins.git",
-    "directory": "packages/python-lambda"
+    "directory": "packages/python-lambda" 
   },
   "dependencies": {
     "adm-zip": "^0.5.10",

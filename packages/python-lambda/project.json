@@ -40,6 +40,10 @@
       "command": "node tools/scripts/publish.mjs python-lambda {args.ver} {args.tag}",
       "dependsOn": ["build"]
     },
+    "publish-ci": {
+      "command": "node tools/scripts/publish-ci.mjs node-lambda {args.tag}",
+      "dependsOn": ["build"]
+    },
     "lint": {
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
