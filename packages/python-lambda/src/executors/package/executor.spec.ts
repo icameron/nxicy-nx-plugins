@@ -36,6 +36,7 @@ describe('runExecutor', () => {
   it('should package the handler and packages', async () => {
     // Mock the logger.info and logger.log methods
     const loggerInfoMock = jest.spyOn(console, 'info').mockImplementation();
+    const loggerLogMock = jest.spyOn(console, 'log').mockImplementation();
 
     const mockFileSystem = {
       ...mockHandlerFiles,
@@ -55,7 +56,8 @@ describe('runExecutor', () => {
     const result = await runExecutor(mockOptions, mockContext);
 
     // Assertions
-    expect(loggerInfoMock).toHaveBeenCalledTimes(2);
+    expect(loggerLogMock).toHaveBeenCalledTimes(3);
+    expect(loggerInfoMock).toHaveBeenCalledTimes(2);    
     expect(fs.copyFileSync).toHaveBeenCalledTimes(13); // Once for each package
     expect(AdmZip).toHaveBeenCalledTimes(1); // AdmZip constructor should be called once
     expect(admZipInstanceMock.addFile).toHaveBeenCalledTimes(13); // One for each package and the handler
@@ -65,8 +67,9 @@ describe('runExecutor', () => {
 
   it('should handle a folder not existing', async () => {
     // Mock the logger.info and logger.log methods
+    const loggerLogMock = jest.spyOn(console, 'log').mockImplementation();
     const loggerInfoMock = jest.spyOn(console, 'info').mockImplementation();
-    const loggerLogError = jest.spyOn(console, 'error').mockImplementation();
+    const loggerErrorMock = jest.spyOn(console, 'error').mockImplementation();
 
     const mockFileSystem = {
       ...mockHandlerFiles,
@@ -86,8 +89,9 @@ describe('runExecutor', () => {
     const result = await runExecutor(mockOptions, mockContext);
 
     // Assertions
+    expect(loggerLogMock).toHaveBeenCalledTimes(2);
     expect(loggerInfoMock).toHaveBeenCalledTimes(2);
-    expect(loggerLogError).toHaveBeenCalledTimes(1);
+    expect(loggerErrorMock).toHaveBeenCalledTimes(1);
     expect(fs.copyFileSync).toHaveBeenCalledTimes(9);
     expect(AdmZip).toHaveBeenCalledTimes(1);
     expect(admZipInstanceMock.addFile).toHaveBeenCalledTimes(9);
@@ -96,6 +100,7 @@ describe('runExecutor', () => {
   });
 
   it('should handle no zipFileOutputPath', async () => {
+    const loggerLogMock = jest.spyOn(console, 'log').mockImplementation();
     const loggerInfoMock = jest.spyOn(console, 'info').mockImplementation();
 
     // Mock the AdmZip instance and its methods
@@ -118,7 +123,9 @@ describe('runExecutor', () => {
       mockContext
     );
 
+  
     // Assertions
+    expect(loggerLogMock).toHaveBeenCalledTimes(2);
     expect(loggerInfoMock).toHaveBeenCalledTimes(1);
     expect(fs.copyFileSync).toHaveBeenCalledTimes(13); 
     expect(AdmZip).toHaveBeenCalledTimes(0);
