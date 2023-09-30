@@ -19,6 +19,7 @@ import {
 } from '../../utils/build-targets';
 import { getPackageTarget } from '../../utils/package-target';
 import { esbuildVersion, nxVersion } from '../../utils/versions';
+import { compareFolders } from '../../utils/folder-compare';
 
 export function normalizeOptions(
   tree: Tree,
@@ -69,13 +70,19 @@ export function addFiles(tree: Tree, options: NormalizedSchema) {
 
   //bundler config
   if (options.bundler === 'webpack') {
-    generateFiles(
-      tree,
-      path.join(__dirname, 'files/webpack'),
-      `${options.projectRoot}`,
-      templateOptions
+    const webpackConfigData = tree.read(
+      `${options.projectRoot}/webpack.config.js`
     );
+    if (!webpackConfigData) {
+      generateFiles(
+        tree,
+        path.join(__dirname, 'files/webpack'),
+        `${options.projectRoot}`,
+        templateOptions
+      );
+    }
   }
+
   //handler
   generateFiles(
     tree,
@@ -95,7 +102,6 @@ export async function lambdaHandlerGenerator(
 
   const installTask = addProjectDependencies(tree, normalizedOptions);
   tasks.push(installTask);
-
 
   const projectConfig = readProjectConfiguration(tree, options.project);
 
