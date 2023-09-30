@@ -31,7 +31,7 @@ describe('lambdaHandlerGenerator', () => {
           options: {
             bundle: true,
             thirdParty: true,
-            format: ["cjs"],
+            format: ['cjs'],
             outputPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             outputFileName: 'index.js',
             main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
@@ -151,7 +151,7 @@ describe('lambdaHandlerGenerator', () => {
           options: {
             bundle: true,
             thirdParty: true,
-            format: ["cjs"],
+            format: ['cjs'],
             outputPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             outputFileName: 'index.js',
             main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
@@ -210,7 +210,7 @@ describe('lambdaHandlerGenerator', () => {
     await lambdaHandlerGenerator(appTree, {
       name: 'my-node-lambda-handler',
       project: 'my-project',
-      bundler:'webpack'
+      bundler: 'webpack',
     });
     expect(
       appTree.exists(
@@ -222,13 +222,51 @@ describe('lambdaHandlerGenerator', () => {
         'apps/my-project/src/handlers/my-node-lambda-handler/index.ts'
       )
     ).toBeTruthy();
-    expect(
-      appTree.exists(
-        'apps/my-project/webpack.config.js'
-      )
-    ).toBeTruthy();
+    expect(appTree.exists('apps/my-project/webpack.config.js')).toBeTruthy();
   });
 
+  it('should generate files with webpack config and not override existing webpack config', async () => {
+    appTree = await createTestApp('my-project');
+    await lambdaHandlerGenerator(appTree, {
+      name: 'my-node-lambda-handler',
+      project: 'my-project',
+      bundler: 'webpack',
+    });
+    // alter the webpack config
+    const webpackConfigData = appTree.read(
+      'apps/my-project/webpack.config.js',
+      'utf-8'
+    );
+    const newConfig = webpackConfigData.replace(
+      "  return config;",
+      "  console.log('test');\n  return config;"
+    );
+    appTree.write('apps/my-project/webpack.config.js', newConfig);
+
+    await lambdaHandlerGenerator(appTree, {
+      name: 'my-node-lambda-handler-2',
+      project: 'my-project',
+      bundler: 'webpack',
+    });
+
+    const webpackConfigDataTest = appTree.read(
+      'apps/my-project/webpack.config.js',
+      'utf-8'
+    );
+
+    expect(webpackConfigDataTest).toEqual(newConfig);
+    expect(
+      appTree.exists(
+        'apps/my-project/src/handlers/my-node-lambda-handler/index.spec.ts'
+      )
+    ).toBeTruthy();
+    expect(
+      appTree.exists(
+        'apps/my-project/src/handlers/my-node-lambda-handler/index.ts'
+      )
+    ).toBeTruthy();
+    expect(appTree.exists('apps/my-project/webpack.config.js')).toBeTruthy();
+  });
 });
 
 export async function createTestApp(libName: string): Promise<Tree> {
