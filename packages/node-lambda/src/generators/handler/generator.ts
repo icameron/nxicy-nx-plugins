@@ -19,7 +19,6 @@ import {
 } from '../../utils/build-targets';
 import { getPackageTarget } from '../../utils/package-target';
 import { esbuildVersion, nxVersion } from '../../utils/versions';
-import { compareFolders } from '../../utils/folder-compare';
 
 export function normalizeOptions(
   tree: Tree,
