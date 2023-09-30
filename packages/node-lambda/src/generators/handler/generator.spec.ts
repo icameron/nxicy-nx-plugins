@@ -31,6 +31,7 @@ describe('lambdaHandlerGenerator', () => {
           options: {
             bundle: true,
             thirdParty: true,
+            format: ["cjs"],
             outputPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             outputFileName: 'index.js',
             main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
@@ -150,6 +151,7 @@ describe('lambdaHandlerGenerator', () => {
           options: {
             bundle: true,
             thirdParty: true,
+            format: ["cjs"],
             outputPath: `dist/apps/my-project/my-node-lambda-handler/handler`,
             outputFileName: 'index.js',
             main: `apps/my-project/src/handlers/my-node-lambda-handler/index.ts`,
