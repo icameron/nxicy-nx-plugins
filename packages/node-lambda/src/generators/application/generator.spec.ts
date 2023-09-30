@@ -43,6 +43,7 @@ describe('app', () => {
         options: {
           bundle: true,
           thirdParty: true,
+          format: ['cjs'],
           outputPath: 'dist/apps/my-node-lambda-application/get/handler',
           outputFileName: 'index.js',
           main: 'apps/my-node-lambda-application/src/handlers/get/index.ts',
@@ -240,6 +241,7 @@ describe('app', () => {
         expect(tree.exists(path)).toBeTruthy();
       });
 
+      
       // Make sure these have properties
       [
         {
@@ -304,6 +306,11 @@ describe('app', () => {
       ].forEach((path) => {
         expect(tree.exists(path)).toBeTruthy();
       });
+
+      // As the default is esbuild make sure webpack condig doesn't exist
+      expect(
+        tree.exists(`apps/my-node-lambda-application/webpack.config.ts`)
+      ).toBeFalsy();
 
       const tsconfig = readJson(
         tree,

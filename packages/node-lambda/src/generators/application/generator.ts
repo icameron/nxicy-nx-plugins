@@ -17,7 +17,7 @@ import {
   updateJson,
 } from '@nx/devkit';
 import { Linter, lintProjectGenerator } from '@nx/linter';
-import { getRelativePathToRootTsConfig, tsConfigBaseOptions } from '@nx/js';
+import { getRelativePathToRootTsConfig } from '@nx/js';
 import { join } from 'path';
 import { esbuildVersion, nxVersion } from '../../utils/versions';
 import { Schema } from './schema';
@@ -56,11 +56,8 @@ function addProject(tree: Tree, options: NormalizedSchema) {
 }
 
 function addAppFiles(tree: Tree, options: NormalizedSchema) {
-  if (options.bundler !== 'webpack') {
-    tree.delete(joinPathFragments(options.appProjectRoot, 'webpack.config.js'));
-  }
 
-  generateFiles(tree, join(__dirname, 'files'), options.appProjectRoot, {
+  const templateOptions = {
     ...options,
     tmpl: '',
     name: options.name,
@@ -70,7 +67,22 @@ function addAppFiles(tree: Tree, options: NormalizedSchema) {
       tree,
       options.appProjectRoot
     ),
-  });
+  };
+  generateFiles(
+    tree,
+    join(__dirname, 'files/app'),
+    options.appProjectRoot,
+    templateOptions
+  );
+  //bundler config
+  if (options.bundler === 'webpack') {
+    generateFiles(
+      tree,
+      join(__dirname, 'files/webpack'),
+      options.appProjectRoot,
+      templateOptions
+    );
+  }
 }
 
 export async function addLintingToApplication(

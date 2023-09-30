@@ -6,6 +6,7 @@ export const getEsBuildConfig = (projectRoot: string, name: string) => ({
   options: {
     bundle: true,
     thirdParty: true,
+    format: ["cjs"],
     outputPath: joinPathFragments('dist', projectRoot, name, 'handler'),
     outputFileName: 'index.js',
     main: joinPathFragments(projectRoot, 'src', 'handlers', name, 'index.ts'),
