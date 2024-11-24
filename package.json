@@ -39,11 +39,5 @@
   },
   "nx": {
     "includedScripts": []
-  },
-  "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "^19.8.12",
-    "@nx/nx-darwin-x64": "^19.8.12",
-    "@nx/nx-linux-x64-gnu": "^19.8.12",
-    "@nx/nx-win32-x64-msvc": "^19.8.12"
   }
 }
