@@ -1,6 +1,6 @@
 {
   "name": "@nxicy/node-lambda",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "commonjs",
   "generators": "./generators.json",
   "executors": "./executors.json", 
