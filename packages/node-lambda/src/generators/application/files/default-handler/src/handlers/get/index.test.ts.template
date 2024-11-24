@@ -3,8 +3,9 @@ import * as index from './index';
 
 describe('<%= name %> function', () => {
   it('should return correct response', async () => {
-    const mockEvent: APIGatewayProxyEvent = {     
+       const mockEvent: APIGatewayProxyEvent = {     
     } as unknown as APIGatewayProxyEvent;
+
 
     const result = {
       statusCode: 200,
