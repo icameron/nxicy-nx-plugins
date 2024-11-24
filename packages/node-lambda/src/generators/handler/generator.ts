@@ -105,7 +105,39 @@ export async function lambdaHandlerGenerator(
   const projectConfig = readProjectConfiguration(tree, options.project);
 
   if (!projectConfig.targets) {
-    projectConfig.targets = {};
+    projectConfig.targets = {
+      build: {
+        executor: 'nx:noop',
+        dependsOn: [],
+        configurations: {
+          development: {
+            dependsOn: [],
+          },
+        },
+      },
+      package: {
+        executor: 'nx:noop',
+        dependsOn: [],
+      },
+    };
+  }
+
+  //update build and package
+  const buildJSON = { ...projectConfig.targets['build'] };
+  const buildStr = `build-${options.name}`;
+  if (buildJSON.dependsOn && buildJSON.dependsOn.indexOf(buildStr) === -1) {
+    buildJSON.dependsOn?.push(buildStr);
+    buildJSON.configurations?.development?.dependsOn?.push(
+      `${buildStr}:development`
+    );
+    projectConfig.targets['build'] = buildJSON;
+  }
+
+  const packageJSON = { ...projectConfig.targets['package'] };
+  const packageStr = `package-${options.name}`;
+  if (packageJSON.dependsOn && packageJSON.dependsOn.indexOf(buildStr) === -1) {
+    packageJSON.dependsOn?.push(packageStr);
+    projectConfig.targets['package'] = packageJSON;
   }
 
   projectConfig.targets[`build-${options.name}`] =

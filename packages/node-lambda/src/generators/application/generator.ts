@@ -21,7 +21,6 @@ import { getRelativePathToRootTsConfig } from '@nx/js';
 import { join } from 'path';
 import { esbuildVersion, nxVersion } from '../../utils/versions';
 import { Schema } from './schema';
-import { mapLintPattern } from '@nx/linter/src/generators/lint-project/lint-project';
 import { getPackageTarget } from '../../utils/package-target';
 import {
   getEsBuildConfig,
@@ -34,29 +33,47 @@ export interface NormalizedSchema extends Schema {
 }
 
 function addProject(tree: Tree, options: NormalizedSchema) {
+  const { appProjectRoot, skipDefaultHandler, parsedTags, name, bundler } =
+    options;
+
+  let defaultGetTargets = {};
+  if (!skipDefaultHandler) {
+    defaultGetTargets = {
+      'build-get':
+        bundler === 'esbuild'
+          ? getEsBuildConfig(appProjectRoot, 'get')
+          : getWebpackBuildConfig(appProjectRoot, 'get'),
+      'package-get': getPackageTarget(appProjectRoot, name, 'get'),
+    };
+  }
+
   const project: ProjectConfiguration = {
-    root: options.appProjectRoot,
-    sourceRoot: joinPathFragments(options.appProjectRoot, 'src'),
+    root: appProjectRoot,
+    sourceRoot: joinPathFragments(appProjectRoot, 'src'),
     projectType: 'application',
     targets: {
-      'build-get':
-        options.bundler === 'esbuild'
-          ? getEsBuildConfig(options.appProjectRoot, 'get')
-          : getWebpackBuildConfig(options.appProjectRoot, 'get'),
-      'package-get': getPackageTarget(
-        options.appProjectRoot,
-        options.name,
-        'get'
-      ),
+      build: {
+        executor: 'nx:noop',
+        dependsOn: skipDefaultHandler ? [] : ['build-get'],
+        configurations: {
+          development: {
+            dependsOn: skipDefaultHandler ? [] : ['build-get'],
+          },
+        },
+      },
+      package: {
+        executor: 'nx:noop',
+        dependsOn: skipDefaultHandler ? [] : ['package-get'],
+      },
+      ...defaultGetTargets,
     },
-    tags: options.parsedTags,
+    tags: parsedTags,
   };
 
-  addProjectConfiguration(tree, options.name, project, true);
+  addProjectConfiguration(tree, name, project, true);
 }
 
 function addAppFiles(tree: Tree, options: NormalizedSchema) {
-
   const templateOptions = {
     ...options,
     tmpl: '',
@@ -74,6 +91,14 @@ function addAppFiles(tree: Tree, options: NormalizedSchema) {
     options.appProjectRoot,
     templateOptions
   );
+  if (!options.skipDefaultHandler) {
+    generateFiles(
+      tree,
+      join(__dirname, 'files/default-handler'),
+      options.appProjectRoot,
+      templateOptions
+    );
+  }
   //bundler config
   if (options.bundler === 'webpack') {
     generateFiles(
@@ -95,7 +120,7 @@ export async function addLintingToApplication(
     tsConfigPaths: [
       joinPathFragments(options.appProjectRoot, 'tsconfig.app.json'),
     ],
-    eslintFilePatterns: [mapLintPattern(options.appProjectRoot, 'ts')],
+    eslintFilePatterns: [joinPathFragments(options.appProjectRoot, '**/*.ts')],
     unitTestRunner: options.unitTestRunner,
     skipFormat: true,
     setParserOptionsProject: options.setParserOptionsProject,
@@ -138,6 +163,8 @@ function updateTsConfigOptions(tree: Tree, options: NormalizedSchema) {
 
 export async function applicationGenerator(tree: Tree, schema: Schema) {
   const options = normalizeOptions(tree, schema);
+
+  const { linter, name, appProjectRoot, skipFormat } = options;
   const tasks: GeneratorCallback[] = [];
 
   const installTask = addProjectDependencies(tree, options);
@@ -148,7 +175,7 @@ export async function applicationGenerator(tree: Tree, schema: Schema) {
 
   updateTsConfigOptions(tree, options);
 
-  if (options.linter === Linter.EsLint) {
+  if (linter === Linter.EsLint) {
     const lintTask = await addLintingToApplication(tree, options);
     tasks.push(lintTask);
   }
@@ -157,7 +184,7 @@ export async function applicationGenerator(tree: Tree, schema: Schema) {
     const { configurationGenerator } = ensurePackage('@nx/jest', nxVersion);
     const jestTask = await configurationGenerator(tree, {
       ...options,
-      project: options.name,
+      project: name,
       setupFile: 'none',
       skipSerializers: true,
       supportTsx: true,
@@ -168,12 +195,10 @@ export async function applicationGenerator(tree: Tree, schema: Schema) {
     tasks.push(jestTask);
   } else {
     // No need for default spec file if unit testing is not setup.
-    tree.delete(
-      joinPathFragments(options.appProjectRoot, 'src/app/app.spec.ts')
-    );
+    tree.delete(joinPathFragments(appProjectRoot, 'src/app/app.spec.ts'));
   }
 
-  if (!options.skipFormat) {
+  if (!skipFormat) {
     await formatFiles(tree);
   }
 
@@ -181,31 +206,50 @@ export async function applicationGenerator(tree: Tree, schema: Schema) {
 }
 
 function normalizeOptions(host: Tree, options: Schema): NormalizedSchema {
-  const { layoutDirectory, projectDirectory } = extractLayoutDirectory(
-    options.directory
-  );
+  const {
+    directory,
+    name,
+    tags,
+    bundler,
+    linter,
+    unitTestRunner,
+    skipFormat,
+    skipPackageJson,
+    setParserOptionsProject,
+    skipDefaultHandler,
+  } = options;
+
+  const { layoutDirectory, projectDirectory } =
+    extractLayoutDirectory(directory);
   const appsDir = layoutDirectory ?? getWorkspaceLayout(host).appsDir;
 
   const appDirectory = projectDirectory
-    ? `${names(projectDirectory).fileName}/${names(options.name).fileName}`
-    : names(options.name).fileName;
+    ? `${names(projectDirectory).fileName}/${names(name).fileName}`
+    : names(name).fileName;
 
   const appProjectName = appDirectory.replace(new RegExp('/', 'g'), '-');
 
   const appProjectRoot = joinPathFragments(appsDir, appDirectory);
 
-  const parsedTags = options.tags
-    ? options.tags.split(',').map((s) => s.trim())
-    : [];
-  options.bundler = options.bundler ?? 'esbuild';
-  return {
-    ...options,
+  const parsedTags = tags ? tags.split(',').map((s) => s.trim()) : [];
+  const normalizedBundler = bundler ?? 'esbuild';
+  const normalizedLinter = linter ?? Linter.EsLint;
+  const normalizedUnitTestRunner = unitTestRunner ?? 'jest';
+
+  const normalizedOptions = {
+    bundler: normalizedBundler,
+    linter: normalizedLinter,
+    unitTestRunner: normalizedUnitTestRunner,
     name: names(appProjectName).fileName,
+    skipFormat,
+    skipPackageJson,
+    setParserOptionsProject,
+    skipDefaultHandler,
     appProjectRoot,
     parsedTags,
-    linter: options.linter ?? Linter.EsLint,
-    unitTestRunner: options.unitTestRunner ?? 'jest',
   };
+
+  return normalizedOptions;
 }
 
 export default applicationGenerator;

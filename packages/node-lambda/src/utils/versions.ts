@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-export const nxVersion='^16.6.0'
-export const nxWebpackVersion='^16.6.0'
+export const nxVersion='^19.4.1'
+export const nxWebpackVersion='^19.4.1'
 export const esbuildVersion="^0.17.19"
 

@@ -7,10 +7,8 @@ export interface Schema {
   directory?: string;
   unitTestRunner?: 'jest' | 'none';
   linter?: Linter;
-  tags?: string;  
+  tags?: string;
   setParserOptionsProject?: boolean;
   bundler?: 'esbuild' | 'webpack';
-
-
+  skipDefaultHandler?: boolean;
 }
-

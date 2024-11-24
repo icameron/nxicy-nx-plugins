@@ -10,13 +10,12 @@ import { lambdaHandlerGenerator } from './generator';
 import applicationGenerator from '../application/generator';
 
 describe('lambdaHandlerGenerator', () => {
-  let appTree: Tree;
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should update project config with default esbuild config', async () => {
-    appTree = await createTestApp('my-project');
+    const appTree = await createTestApp('my-project',true);
     await lambdaHandlerGenerator(appTree, {
       name: 'my-node-lambda-handler',
       project: 'my-project',
@@ -49,11 +48,10 @@ describe('lambdaHandlerGenerator', () => {
           },
         },
         lint: {
-          executor: '@nx/linter:eslint',
+          executor: '@nx/eslint:lint',
           options: {
             lintFilePatterns: ['apps/my-project/**/*.ts'],
           },
-          outputs: ['{options.outputFile}'],
         },
         'package-my-node-lambda-handler': {
           executor: '@nxicy/node-lambda:package',
@@ -75,7 +73,7 @@ describe('lambdaHandlerGenerator', () => {
   });
 
   it('should update project config with webpack config', async () => {
-    appTree = await createTestApp('my-project');
+    const appTree = await createTestApp('my-project', true);
     await lambdaHandlerGenerator(appTree, {
       name: 'my-node-lambda-handler',
       project: 'my-project',
@@ -85,6 +83,19 @@ describe('lambdaHandlerGenerator', () => {
     expect(project.root).toEqual('apps/my-project');
     expect(project.targets).toEqual(
       expect.objectContaining({
+        build: {
+          executor: 'nx:noop',
+          dependsOn: ['build-my-node-lambda-handler'],
+          configurations: {
+            development: {
+              dependsOn: ['build-my-node-lambda-handler:development'],
+            },
+          },
+        },
+        package: {
+          executor: 'nx:noop',
+          dependsOn: ['package-my-node-lambda-handler'],
+        },
         'build-my-node-lambda-handler': {
           executor: `@nx/webpack:webpack`,
           outputs: ['{options.outputPath}'],
@@ -105,11 +116,10 @@ describe('lambdaHandlerGenerator', () => {
           },
         },
         lint: {
-          executor: '@nx/linter:eslint',
+          executor: '@nx/eslint:lint',
           options: {
             lintFilePatterns: ['apps/my-project/**/*.ts'],
           },
-          outputs: ['{options.outputFile}'],
         },
         'package-my-node-lambda-handler': {
           executor: '@nxicy/node-lambda:package',
@@ -131,7 +141,7 @@ describe('lambdaHandlerGenerator', () => {
   });
 
   it('should create project targets if non exists config', async () => {
-    appTree = await createTestApp('my-project');
+    const appTree = await createTestApp('my-project');
     const tempProject = readProjectConfiguration(appTree, 'my-project');
     delete tempProject.targets;
     updateProjectConfiguration(appTree, 'my-project', tempProject);
@@ -188,7 +198,7 @@ describe('lambdaHandlerGenerator', () => {
   });
 
   it('should generate files', async () => {
-    appTree = await createTestApp('my-project');
+    const appTree = await createTestApp('my-project');
     await lambdaHandlerGenerator(appTree, {
       name: 'my-node-lambda-handler',
       project: 'my-project',
@@ -206,7 +216,7 @@ describe('lambdaHandlerGenerator', () => {
   });
 
   it('should generate files with webpack config', async () => {
-    appTree = await createTestApp('my-project');
+    const appTree = await createTestApp('my-project');
     await lambdaHandlerGenerator(appTree, {
       name: 'my-node-lambda-handler',
       project: 'my-project',
@@ -226,7 +236,7 @@ describe('lambdaHandlerGenerator', () => {
   });
 
   it('should generate files with webpack config and not override existing webpack config', async () => {
-    appTree = await createTestApp('my-project');
+    const appTree = await createTestApp('my-project');
     await lambdaHandlerGenerator(appTree, {
       name: 'my-node-lambda-handler',
       project: 'my-project',
@@ -238,7 +248,7 @@ describe('lambdaHandlerGenerator', () => {
       'utf-8'
     );
     const newConfig = webpackConfigData.replace(
-      "  return config;",
+      '  return config;',
       "  console.log('test');\n  return config;"
     );
     appTree.write('apps/my-project/webpack.config.js', newConfig);
@@ -269,13 +279,17 @@ describe('lambdaHandlerGenerator', () => {
   });
 });
 
-export async function createTestApp(libName: string): Promise<Tree> {
+export async function createTestApp(
+  libName: string,
+  skipDefault?: boolean
+): Promise<Tree> {
   const appTree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
 
   await applicationGenerator(appTree, {
     skipFormat: false,
     unitTestRunner: 'none',
     name: libName,
+    skipDefaultHandler: skipDefault,
   });
 
   return appTree;

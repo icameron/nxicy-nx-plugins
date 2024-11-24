@@ -27,6 +27,12 @@
       "default": false,
       "x-priority": "internal"
     },
+    "skipDefaultHandler": {
+      "description": "Skip including the default handler",
+      "type": "boolean",
+      "default": false,
+      "x-priority": "internal"
+    },
     "skipPackageJson": {
       "type": "boolean",
       "default": false,
